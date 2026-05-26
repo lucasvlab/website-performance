@@ -1,0 +1,871 @@
+<div id="vlab-audit-root"></div>
+
+<style>
+  #vlab-audit-root * {
+    box-sizing: border-box;
+  }
+
+  .va-wrap {
+    font-family: "DM Sans", -apple-system, sans-serif;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+
+  .va-step {
+    display: none;
+  }
+
+  .va-step.active {
+    display: block;
+  }
+
+  /* ── INPUT ── */
+  .va-hero {
+    text-align: center;
+    padding: 1rem 0 2rem;
+  }
+
+  .va-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    border: 1px solid #e5e5e5;
+    border-radius: 999px;
+    padding: 4px 14px;
+    margin-bottom: 1.25rem;
+  }
+
+  .va-hero h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  .va-hero p {
+    font-size: 15px;
+    color: #666;
+    margin: 0;
+  }
+
+  .va-field {
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 15px;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+    color: #111;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  .va-field:focus {
+    outline: none;
+    border-color: #111;
+  }
+
+  .va-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #111;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+    letter-spacing: -0.2px;
+  }
+
+  .va-btn:hover {
+    opacity: 0.85;
+  }
+
+  .va-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .va-hint {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ── LOADING ── */
+  .va-loading {
+    text-align: center;
+    padding: 3rem 0;
+  }
+
+  .va-loading-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+
+  .va-checks {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto 2rem;
+    max-width: 300px;
+    text-align: left;
+  }
+
+  .va-checks li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .va-checks li:last-child {
+    border-bottom: none;
+  }
+
+  .va-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e5e5e5;
+    flex-shrink: 0;
+  }
+
+  .va-checks li.done .va-dot {
+    background: #22c55e;
+  }
+
+  .va-checks li.running .va-dot {
+    background: #f59e0b;
+    animation: vapulse 0.7s infinite alternate;
+  }
+
+  @keyframes vapulse {
+    from {
+      opacity: 0.3;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ── RESULT ── */
+  .va-result-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem 0 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 1.5rem;
+  }
+
+  .va-result-meta h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: #111;
+    letter-spacing: -0.3px;
+  }
+
+  .va-result-meta p {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 6px;
+  }
+
+  .va-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+
+  .va-badge.good {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .va-badge.ok {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+
+  .va-badge.bad {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .va-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .va-metric {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .va-metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .va-metric-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .va-metric-scores {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .va-metric-main {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -1px;
+  }
+
+  .va-metric-sub {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .va-metric-bar-bg {
+    height: 3px;
+    background: #e5e5e5;
+    border-radius: 2px;
+  }
+
+  .va-metric-bar {
+    height: 3px;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  .va-vitals {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .va-vital {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .va-vital-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .va-vital-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.5px;
+  }
+
+  .va-section {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .va-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fafafa;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .va-section-header:hover {
+    background: #f5f5f5;
+  }
+
+  .va-section-icon {
+    font-size: 16px;
+    color: #888;
+  }
+
+  .va-section-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .va-section-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .va-section-score {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .va-section-chevron {
+    font-size: 12px;
+    color: #aaa;
+    transition: transform 0.2s;
+  }
+
+  .va-section.open .va-section-chevron {
+    transform: rotate(180deg);
+  }
+
+  .va-section-body {
+    display: none;
+    padding: 0 16px 12px;
+  }
+
+  .va-section.open .va-section-body {
+    display: block;
+  }
+
+  .va-check {
+    display: flex;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .va-check:last-child {
+    border-bottom: none;
+  }
+
+  .va-check-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    margin-top: 1px;
+  }
+
+  .va-check-icon.pass {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .va-check-icon.warn {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+
+  .va-check-icon.fail {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .va-check-content {
+    flex: 1;
+  }
+
+  .va-check-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 3px;
+  }
+
+  .va-check-desc {
+    font-size: 12px;
+    color: #666;
+    margin: 0 0 5px;
+    line-height: 1.5;
+  }
+
+  .va-check-action {
+    font-size: 11px;
+    color: #888;
+    margin: 0;
+    padding: 6px 10px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    border-left: 2px solid #111;
+    line-height: 1.5;
+  }
+
+  .va-cta {
+    margin-top: 1.5rem;
+    padding: 1.75rem;
+    background: #111;
+    border-radius: 16px;
+    text-align: center;
+    color: #fff;
+  }
+
+  .va-cta h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  .va-cta p {
+    font-size: 13px;
+    color: #aaa;
+    margin: 0 0 1.25rem;
+  }
+
+  .va-cta-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .va-cta-btn:hover {
+    opacity: 0.85;
+  }
+
+  .va-error {
+    text-align: center;
+    padding: 2rem;
+    background: #fef2f2;
+    border-radius: 12px;
+    color: #991b1b;
+    font-size: 14px;
+  }
+
+  .va-retry {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  @media (max-width: 480px) {
+    .va-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .va-vitals {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .va-hero h1 {
+      font-size: 22px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+
+    /* ─────────────────────────────────────────
+       KONFIGURATION – hier anpassen
+    ───────────────────────────────────────── */
+    const API_BASE = 'https://website-performance-uyti.onrender.com'; // ← hier deine Render-URL eintragen
+    const CTA_URL = 'https://v-lab.one/kontakt';
+    /* ───────────────────────────────────────── */
+
+    const root = document.getElementById('vlab-audit-root');
+
+    root.innerHTML = `
+    <div class="va-wrap">
+
+      <div class="va-step active" id="va-input">
+        <div class="va-hero">
+          <div class="va-tag">v-lab · Shop-Potenzialcheck</div>
+          <h1>Wie viel Umsatz lässt Ihr Shop liegen?</h1>
+          <p>Performance, SEO, Barrierefreiheit & Sicherheit – kostenlos in 60 Sekunden.</p>
+        </div>
+        <input class="va-field" type="url" id="va-url" placeholder="https://ihr-shop.de" />
+        <input class="va-field" type="email" id="va-email" placeholder="ihre@email.de (für den Report)" />
+        <button class="va-btn" id="va-start">Jetzt kostenlos analysieren →</button>
+        <p class="va-hint">Nur öffentlich erreichbare Seiten · Keine Weitergabe an Dritte · DSGVO-konform</p>
+      </div>
+
+      <div class="va-step" id="va-loading">
+        <div class="va-loading">
+          <p class="va-loading-label" id="va-loading-label">Analyse wird gestartet...</p>
+          <ul class="va-checks">
+            <li id="vc-perf"><span class="va-dot"></span>Performance & Ladezeit</li>
+            <li id="vc-seo"><span class="va-dot"></span>SEO & Meta-Daten</li>
+            <li id="vc-a11y"><span class="va-dot"></span>Barrierefreiheit (BFSG)</li>
+            <li id="vc-security"><span class="va-dot"></span>Sicherheit & HTTPS</li>
+            <li id="vc-mobile"><span class="va-dot"></span>Mobile-Optimierung</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="va-step" id="va-result"></div>
+
+    </div>
+  `;
+
+    function show(id) {
+      root.querySelectorAll('.va-step').forEach(s => s.classList.remove('active'));
+      root.querySelector('#' + id).classList.add('active');
+    }
+
+    function scoreColor(s) {
+      return s >= 80 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444';
+    }
+
+    function statusIcon(s) {
+      if (s === 'pass') return '✓';
+      if (s === 'warn') return '!';
+      return '✕';
+    }
+
+    const checkLabels = ['vc-perf', 'vc-seo', 'vc-a11y', 'vc-security', 'vc-mobile'];
+    const checkTexts = [
+      'Performance wird gemessen...',
+      'SEO-Signale werden geprüft...',
+      'Barrierefreiheit wird analysiert...',
+      'Sicherheits-Check läuft...',
+      'Mobile-Optimierung wird bewertet...'
+    ];
+
+    function animateLoading(onDone) {
+      let i = 0;
+      function next() {
+        if (i > 0) {
+          const prev = root.querySelector('#' + checkLabels[i - 1]);
+          prev.classList.remove('running');
+          prev.classList.add('done');
+        }
+        if (i < checkLabels.length) {
+          root.querySelector('#' + checkLabels[i]).classList.add('running');
+          root.querySelector('#va-loading-label').textContent = checkTexts[i];
+          i++;
+          setTimeout(next, 1800 + Math.random() * 600);
+        } else {
+          onDone();
+        }
+      }
+      next();
+    }
+
+    function buildResult(data) {
+      const s = data.scores;
+      const total = Math.round((s.performance.mobile + s.seo.mobile + s.accessibility.mobile + s.bestPractices.mobile) / 4);
+      const c = data.checks;
+      const v = data.vitals;
+
+      const badgeClass = total >= 80 ? 'good' : total >= 50 ? 'ok' : 'bad';
+      const badgeText = total >= 80 ? 'Gut aufgestellt' : total >= 50 ? 'Optimierungspotenzial' : 'Dringender Handlungsbedarf';
+      const titleText = total >= 80 ? 'Ihr Shop performt solide' : total >= 50 ? 'Ihr Shop hat konkrete Lücken' : 'Ihr Shop verliert Umsatz';
+      const displayUrl = data.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+      const categories = buildCategories(s, c);
+
+      root.querySelector('#va-result').innerHTML = `
+      <div class="va-result-header">
+        <svg width="72" height="72" viewBox="0 0 72 72" aria-label="Gesamtscore ${total} von 100">
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#f0f0f0" stroke-width="6"/>
+          <circle id="va-ring" cx="36" cy="36" r="30" fill="none" stroke="${scoreColor(total)}" stroke-width="6"
+            stroke-dasharray="188.4" stroke-dashoffset="188.4" stroke-linecap="round"
+            transform="rotate(-90 36 36)" style="transition: stroke-dashoffset 1.2s ease;"/>
+          <text x="36" y="41" text-anchor="middle" font-size="17" font-weight="700" fill="#111">${total}</text>
+        </svg>
+        <div class="va-result-meta">
+          <h2>${titleText}</h2>
+          <p>${displayUrl}</p>
+          <span class="va-badge ${badgeClass}">${badgeText}</span>
+        </div>
+      </div>
+
+      <div class="va-metrics">
+        ${metricCard('Performance', s.performance.mobile, s.performance.desktop)}
+        ${metricCard('SEO', s.seo.mobile, s.seo.desktop)}
+        ${metricCard('Barrierefreiheit', s.accessibility.mobile, s.accessibility.desktop)}
+        ${metricCard('Best Practices', s.bestPractices.mobile, s.bestPractices.desktop)}
+      </div>
+
+      <div class="va-vitals">
+        ${vitalCard('LCP', v.lcp)}
+        ${vitalCard('TBT', v.fid)}
+        ${vitalCard('CLS', v.cls)}
+        ${vitalCard('TTFB', v.ttfb)}
+      </div>
+
+      ${categories}
+
+      <div class="va-cta">
+        <h3>Wir beheben das für Sie</h3>
+        <p>Unser Team analysiert die Befunde und erstellt einen konkreten Maßnahmenplan für Ihren Shop.</p>
+        <a class="va-cta-btn" href="${CTA_URL}" target="_blank">Kostenloses Beratungsgespräch →</a>
+      </div>
+    `;
+
+      setTimeout(() => {
+        const ring = root.querySelector('#va-ring');
+        if (ring) ring.style.strokeDashoffset = 188.4 * (1 - total / 100);
+        root.querySelectorAll('.va-metric-bar[data-w]').forEach(bar => {
+          bar.style.width = bar.dataset.w;
+        });
+      }, 150);
+
+      root.querySelectorAll('.va-section-header').forEach(h => {
+        h.addEventListener('click', () => h.closest('.va-section').classList.toggle('open'));
+      });
+    }
+
+    function metricCard(label, mobile, desktop) {
+      const color = scoreColor(mobile);
+      return `
+      <div class="va-metric">
+        <div class="va-metric-top">
+          <span class="va-metric-label">${label}</span>
+          <div class="va-metric-scores">
+            <span class="va-metric-main" style="color:${color}">${mobile}</span>
+            <span class="va-metric-sub">mob · ${desktop} desk</span>
+          </div>
+        </div>
+        <div class="va-metric-bar-bg">
+          <div class="va-metric-bar" style="background:${color};width:0" data-w="${mobile}%"></div>
+        </div>
+      </div>`;
+    }
+
+    function vitalCard(label, value) {
+      return `<div class="va-vital"><div class="va-vital-label">${label}</div><div class="va-vital-value">${value}</div></div>`;
+    }
+
+    function checkRow(status, name, desc, action) {
+      return `
+      <div class="va-check">
+        <div class="va-check-icon ${status}">${statusIcon(status)}</div>
+        <div class="va-check-content">
+          <p class="va-check-name">${name}</p>
+          <p class="va-check-desc">${desc}</p>
+          ${action ? `<p class="va-check-action"><strong>v-lab Maßnahme:</strong> ${action}</p>` : ''}
+        </div>
+      </div>`;
+    }
+
+    function section(icon, title, score, checksHtml) {
+      const color = scoreColor(score);
+      return `
+      <div class="va-section">
+        <div class="va-section-header">
+          <span class="va-section-icon">${icon}</span>
+          <span class="va-section-title">${title}</span>
+          <div class="va-section-right">
+            <span class="va-section-score" style="color:${color}">${score}/100</span>
+            <span class="va-section-chevron">▾</span>
+          </div>
+        </div>
+        <div class="va-section-body">${checksHtml}</div>
+      </div>`;
+    }
+
+    function buildCategories(s, c) {
+      const perf = s.performance.mobile;
+      const perfChecks = [
+        checkRow(
+          perf >= 80 ? 'pass' : perf >= 50 ? 'warn' : 'fail',
+          'Ladezeit (LCP)',
+          perf >= 80 ? 'Seite lädt schnell – gute Nutzererfahrung.' : perf >= 50 ? 'Ladezeit ist ausbaufähig, besonders auf Mobile.' : 'Seite lädt zu langsam. Nutzer brechen ab, Conversion sinkt.',
+          perf < 80 ? 'Bildkomprimierung, Critical CSS, Server-Response-Zeit optimieren.' : ''
+        ),
+        checkRow(
+          c.imgIssues ? 'fail' : 'pass',
+          'Bildoptimierung',
+          c.imgIssues ? 'Bilder sind nicht optimal komprimiert – erhöht Ladezeit deutlich.' : 'Bilder sind gut optimiert.',
+          c.imgIssues ? 'Automatische Bildkomprimierung & WebP-Konvertierung einrichten.' : ''
+        ),
+        checkRow(
+          c.hasWebP ? 'pass' : 'warn',
+          'Moderne Bildformate (WebP/AVIF)',
+          c.hasWebP ? 'Moderne Bildformate werden verwendet – gut.' : 'Keine modernen Bildformate erkannt. Einsparungspotenzial vorhanden.',
+          !c.hasWebP ? 'WebP-/AVIF-Konvertierung im Theme oder CDN aktivieren.' : ''
+        ),
+        checkRow(
+          c.scriptCount > 20 ? 'fail' : c.scriptCount > 10 ? 'warn' : 'pass',
+          'JavaScript-Bloat',
+          `${c.scriptCount} externe Scripts erkannt. ${c.scriptCount > 20 ? 'Zu viele – deutliche Ladezeit-Bremse.' : c.scriptCount > 10 ? 'Etwas viel – prüfen.' : 'Überschaubar.'}`,
+          c.scriptCount > 10 ? 'Script-Audit durchführen, unnötige Apps & Tracking-Snippets entfernen.' : ''
+        ),
+      ];
+
+      const seo = s.seo.mobile;
+      const seoChecks = [
+        checkRow(
+          c.noMeta ? 'warn' : 'pass',
+          'Meta Descriptions',
+          c.noMeta ? 'Fehlende Meta Descriptions erkannt – Klickrate in Google leidet.' : 'Meta Descriptions vorhanden.',
+          c.noMeta ? 'Template-basierte Meta Descriptions für alle Seiten.' : ''
+        ),
+        checkRow(
+          c.noAlt ? 'fail' : 'pass',
+          'ALT-Texte auf Bildern',
+          c.noAlt ? 'Bilder ohne ALT-Attribut gefunden – schadet SEO & Barrierefreiheit.' : 'ALT-Texte vorhanden.',
+          c.noAlt ? 'KI-gestützte ALT-Text-Automatisierung für Produktbilder.' : ''
+        ),
+        checkRow(
+          seo >= 80 ? 'pass' : seo >= 50 ? 'warn' : 'fail',
+          'SEO-Grundstruktur',
+          seo >= 80 ? 'SEO-Grundlagen sind gut umgesetzt.' : seo >= 50 ? 'SEO-Struktur teilweise optimierbar.' : 'Mehrere SEO-Grundlagen fehlen.',
+          seo < 80 ? 'Vollständiger SEO-Audit: Title-Tags, H1-Struktur, interne Verlinkung.' : ''
+        ),
+      ];
+
+      const a11y = s.accessibility.mobile;
+      const a11yChecks = [
+        checkRow(
+          c.contrastFail ? 'fail' : 'pass',
+          'Kontrastverhältnis (WCAG)',
+          c.contrastFail ? 'Texte unterschreiten den WCAG AA Standard (4.5:1). BFSG-relevant.' : 'Kontraste entsprechen dem WCAG-Standard.',
+          c.contrastFail ? 'Farbanpassung nach WCAG 2.1 AA – besonders für hellgraue Texte.' : ''
+        ),
+        checkRow(
+          c.noLabel ? 'fail' : 'pass',
+          'Formularlabels',
+          c.noLabel ? 'Formularfelder ohne korrekte Label-Verknüpfung – Screenreader können nicht navigieren.' : 'Formularfelder korrekt beschriftet.',
+          c.noLabel ? 'Accessibility-Audit & Label-Implementierung im Theme.' : ''
+        ),
+        checkRow(
+          a11y >= 80 ? 'pass' : a11y >= 50 ? 'warn' : 'fail',
+          'Gesamte Barrierefreiheit',
+          a11y >= 80 ? 'Barrierefreiheit gut umgesetzt.' : a11y >= 50 ? 'Mehrere Barrierefreiheitsprobleme vorhanden.' : 'Erhebliche Barrierefreiheitsmängel – BFSG-Pflicht beachten.',
+          a11y < 80 ? 'BFSG-Compliance-Check & vollständiges Accessibility-Audit.' : ''
+        ),
+      ];
+
+      const bp = s.bestPractices.mobile;
+      const secChecks = [
+        checkRow(
+          c.hasHttps ? 'pass' : 'fail',
+          'HTTPS & SSL',
+          c.hasHttps ? 'HTTPS korrekt eingerichtet – Pflicht für Shop & Vertrauen.' : 'Kein HTTPS erkannt – kritisch für Shops.',
+          !c.hasHttps ? 'SSL-Zertifikat einrichten & HTTP-Weiterleitungen konfigurieren.' : ''
+        ),
+        checkRow(
+          bp >= 80 ? 'pass' : bp >= 50 ? 'warn' : 'fail',
+          'Best Practices & Sicherheit',
+          bp >= 80 ? 'Technische Best Practices werden eingehalten.' : bp >= 50 ? 'Einige Best Practices fehlen.' : 'Mehrere sicherheitsrelevante Probleme erkannt.',
+          bp < 80 ? 'Security-Header, veraltete Libraries & Konsolen-Fehler prüfen.' : ''
+        ),
+      ];
+
+      const mobScore = Math.round((s.performance.mobile + s.accessibility.mobile) / 2);
+      const mobChecks = [
+        checkRow(
+          c.viewport ? 'pass' : 'fail',
+          'Viewport konfiguriert',
+          c.viewport ? 'Viewport-Meta-Tag korrekt gesetzt.' : 'Viewport-Meta-Tag fehlt – Mobile-Darstellung fehlerhaft.',
+          !c.viewport ? 'Viewport-Meta-Tag in Theme eintragen.' : ''
+        ),
+        checkRow(
+          c.tapTargets ? 'warn' : 'pass',
+          'Tap-Targets (Buttons & Links)',
+          c.tapTargets ? 'Buttons/Links zu klein oder zu nah beieinander – Mobile-Nutzung erschwert.' : 'Tap-Targets ausreichend groß.',
+          c.tapTargets ? 'Mindestgröße 48×48px für alle interaktiven Elemente sicherstellen.' : ''
+        ),
+        checkRow(
+          c.fontSize ? 'warn' : 'pass',
+          'Schriftgröße auf Mobile',
+          c.fontSize ? 'Texte teilweise zu klein auf Mobilgeräten (< 12px).' : 'Schriftgrößen für Mobile geeignet.',
+          c.fontSize ? 'Mindestschriftgröße 16px für Fließtexte auf Mobile.' : ''
+        ),
+      ];
+
+      return [
+        section('⚡', 'Performance', perf, perfChecks.join('')),
+        section('🔍', 'SEO', seo, seoChecks.join('')),
+        section('♿', 'Barrierefreiheit (BFSG)', a11y, a11yChecks.join('')),
+        section('🔒', 'Sicherheit & Best Practices', bp, secChecks.join('')),
+        section('📱', 'Mobile-Optimierung', mobScore, mobChecks.join('')),
+      ].join('');
+    }
+
+    /* ── Events ── */
+    root.querySelector('#va-start').addEventListener('click', async () => {
+      const url = root.querySelector('#va-url').value.trim();
+      const email = root.querySelector('#va-email').value.trim();
+      if (!url) { root.querySelector('#va-url').focus(); return; }
+
+      show('va-loading');
+
+      let apiDone = false;
+      let apiData = null;
+      let animDone = false;
+
+      animateLoading(() => {
+        animDone = true;
+        if (apiDone) { show('va-result'); buildResult(apiData); }
+      });
+
+      try {
+        const res = await fetch(`${API_BASE}/audit?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        apiData = data;
+        apiDone = true;
+        if (animDone) { show('va-result'); buildResult(data); }
+      } catch (err) {
+        show('va-result');
+        root.querySelector('#va-result').innerHTML = `
+        <div class="va-error">
+          <strong>Analyse fehlgeschlagen</strong><br>${err.message}<br>
+          <button class="va-retry" onclick="location.reload()">Erneut versuchen</button>
+        </div>`;
+      }
+    });
+
+    root.querySelector('#va-url').addEventListener('keydown', e => {
+      if (e.key === 'Enter') root.querySelector('#va-start').click();
+    });
+
+  })();
+</script>
