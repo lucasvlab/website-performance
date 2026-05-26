@@ -1,0 +1,17 @@
+{
+  "name": "vlab-audit-api",
+  "version": "1.0.0",
+  "description": "v-lab Shop-Audit Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
