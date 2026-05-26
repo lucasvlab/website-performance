@@ -20,39 +20,6 @@
     display: block;
   }
 
-  /* ── INPUT ── */
-  .va-hero {
-    text-align: center;
-    padding: 1rem 0 2rem;
-  }
-
-  .va-tag {
-    display: inline-block;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #888;
-    border: 1px solid #e5e5e5;
-    border-radius: 999px;
-    padding: 4px 14px;
-    margin-bottom: 1.25rem;
-  }
-
-  .va-hero h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #111;
-    margin: 0 0 0.5rem;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
-  }
-
-  .va-hero p {
-    font-size: 15px;
-    color: #666;
-    margin: 0;
-  }
-
   .va-field {
     width: 100%;
     padding: 13px 16px;
@@ -69,31 +36,6 @@
   .va-field:focus {
     outline: none;
     border-color: #111;
-  }
-
-  .va-btn {
-    display: block;
-    width: 100%;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
-    background: #111;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity 0.15s;
-    letter-spacing: -0.2px;
-  }
-
-  .va-btn:hover {
-    opacity: 0.85;
-  }
-
-  .va-btn:disabled {
-    opacity: 0.35;
-    cursor: default;
   }
 
   .va-hint {
@@ -298,6 +240,7 @@
     letter-spacing: -0.5px;
   }
 
+  /* ── SECTIONS ── */
   .va-section {
     border: 1px solid #f0f0f0;
     border-radius: 12px;
@@ -318,11 +261,6 @@
 
   .va-section-header:hover {
     background: #f5f5f5;
-  }
-
-  .va-section-icon {
-    font-size: 16px;
-    color: #888;
   }
 
   .va-section-title {
@@ -362,6 +300,38 @@
     display: block;
   }
 
+  /* ── Kennzahlen-Grid in Sections ── */
+  .va-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 14px 0 10px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 10px;
+  }
+
+  .va-kpi {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .va-kpi-value {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+
+  .va-kpi-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Checks ── */
   .va-check {
     display: flex;
     gap: 12px;
@@ -382,6 +352,7 @@
     align-items: center;
     justify-content: center;
     font-size: 10px;
+    font-weight: 700;
     margin-top: 1px;
   }
 
@@ -414,21 +385,11 @@
   .va-check-desc {
     font-size: 12px;
     color: #666;
-    margin: 0 0 5px;
-    line-height: 1.5;
-  }
-
-  .va-check-action {
-    font-size: 11px;
-    color: #888;
     margin: 0;
-    padding: 6px 10px;
-    background: #f5f5f5;
-    border-radius: 6px;
-    border-left: 2px solid #111;
     line-height: 1.5;
   }
 
+  /* ── CTA ── */
   .va-cta {
     margin-top: 1.5rem;
     padding: 1.75rem;
@@ -500,8 +461,8 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
-    .va-hero h1 {
-      font-size: 22px;
+    .va-kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
@@ -509,27 +470,17 @@
 <script>
   (function () {
 
-    /* ─────────────────────────────────────────
-       KONFIGURATION – hier anpassen
-    ───────────────────────────────────────── */
-    const API_BASE = 'https://website-performance-uyti.onrender.com'; // ← hier deine Render-URL eintragen
+    const API_BASE = 'https://website-performance-uyti.onrender.com';
     const CTA_URL = 'https://v-lab.one/kontakt';
-    /* ───────────────────────────────────────── */
 
     const root = document.getElementById('vlab-audit-root');
 
     root.innerHTML = `
     <div class="va-wrap">
-
       <div class="va-step active" id="va-input">
-        <div class="va-hero">
-          <div class="va-tag">v-lab · Shop-Potenzialcheck</div>
-          <h1>Wie viel Umsatz lässt Ihr Shop liegen?</h1>
-          <p>Performance, SEO, Barrierefreiheit & Sicherheit – kostenlos in 60 Sekunden.</p>
-        </div>
         <input class="va-field" type="url" id="va-url" placeholder="https://ihr-shop.de" />
         <input class="va-field" type="email" id="va-email" placeholder="ihre@email.de (für den Report)" />
-        <button class="va-btn" id="va-start">Jetzt kostenlos analysieren →</button>
+        <button class="button centered" id="va-start">Jetzt kostenlos analysieren →</button>
         <p class="va-hint">Nur öffentlich erreichbare Seiten · Keine Weitergabe an Dritte · DSGVO-konform</p>
       </div>
 
@@ -547,7 +498,6 @@
       </div>
 
       <div class="va-step" id="va-result"></div>
-
     </div>
   `;
 
@@ -595,6 +545,144 @@
       next();
     }
 
+    function kpiGrid(items) {
+      return `<div class="va-kpi-grid">${items.map(([val, label, color]) => `
+      <div class="va-kpi">
+        <div class="va-kpi-value" style="color:${color || '#111'}">${val}</div>
+        <div class="va-kpi-label">${label}</div>
+      </div>`).join('')}</div>`;
+    }
+
+    function checkRow(status, name, desc) {
+      return `
+      <div class="va-check">
+        <div class="va-check-icon ${status}">${statusIcon(status)}</div>
+        <div class="va-check-content">
+          <p class="va-check-name">${name}</p>
+          <p class="va-check-desc">${desc}</p>
+        </div>
+      </div>`;
+    }
+
+    function section(title, score, kpis, checksHtml) {
+      const color = scoreColor(score);
+      return `
+      <div class="va-section">
+        <div class="va-section-header">
+          <span class="va-section-title">${title}</span>
+          <div class="va-section-right">
+            <span class="va-section-score" style="color:${color}">${score}/100</span>
+            <span class="va-section-chevron">▾</span>
+          </div>
+        </div>
+        <div class="va-section-body">
+          ${kpiGrid(kpis)}
+          ${checksHtml}
+        </div>
+      </div>`;
+    }
+
+    function buildCategories(s, c, v) {
+      const perf = s.performance.mobile;
+      const seo = s.seo.mobile;
+      const a11y = s.accessibility.mobile;
+      const bp = s.bestPractices.mobile;
+      const mob = Math.round((perf + a11y) / 2);
+
+      const perfSection = section(
+        'Performance', perf,
+        [
+          [v.lcp, 'LCP', perf >= 80 ? '#22c55e' : perf >= 50 ? '#f59e0b' : '#ef4444'],
+          [v.cls, 'CLS', perf >= 80 ? '#22c55e' : '#f59e0b'],
+          [v.ttfb, 'TTFB', perf >= 80 ? '#22c55e' : '#f59e0b'],
+          [s.performance.desktop + '/100', 'Desktop', scoreColor(s.performance.desktop)],
+          [c.scriptCount, 'Scripts', c.scriptCount > 20 ? '#ef4444' : c.scriptCount > 10 ? '#f59e0b' : '#22c55e'],
+          [c.hasWebP ? 'Ja' : 'Nein', 'WebP', c.hasWebP ? '#22c55e' : '#f59e0b'],
+        ],
+        [
+          checkRow(perf >= 80 ? 'pass' : perf >= 50 ? 'warn' : 'fail', 'Ladezeit (LCP)',
+            perf >= 80 ? 'Seite lädt schnell – gute Nutzererfahrung.' : perf >= 50 ? 'Ladezeit ausbaufähig, besonders auf Mobile.' : 'Seite lädt zu langsam. Nutzer brechen ab, Conversion sinkt.'),
+          checkRow(c.imgIssues ? 'fail' : 'pass', 'Bildoptimierung',
+            c.imgIssues ? 'Bilder nicht optimal komprimiert – erhöht Ladezeit.' : 'Bilder sind gut optimiert.'),
+          checkRow(c.hasWebP ? 'pass' : 'warn', 'Moderne Bildformate (WebP/AVIF)',
+            c.hasWebP ? 'Moderne Bildformate werden verwendet.' : 'Keine modernen Bildformate erkannt – Einsparungspotenzial.'),
+          checkRow(c.scriptCount > 20 ? 'fail' : c.scriptCount > 10 ? 'warn' : 'pass', 'JavaScript',
+            `${c.scriptCount} externe Scripts erkannt. ${c.scriptCount > 20 ? 'Deutliche Ladezeit-Bremse.' : c.scriptCount > 10 ? 'Prüfen empfohlen.' : 'Überschaubar.'}`),
+        ].join('')
+      );
+
+      const seoSection = section(
+        'SEO', seo,
+        [
+          [seo + '/100', 'Score Mobile', scoreColor(seo)],
+          [s.seo.desktop + '/100', 'Score Desktop', scoreColor(s.seo.desktop)],
+          [c.noMeta ? 'Fehlt' : 'OK', 'Meta Desc.', c.noMeta ? '#ef4444' : '#22c55e'],
+          [c.noAlt ? 'Fehlt' : 'OK', 'ALT-Texte', c.noAlt ? '#ef4444' : '#22c55e'],
+        ],
+        [
+          checkRow(c.noMeta ? 'warn' : 'pass', 'Meta Descriptions',
+            c.noMeta ? 'Fehlende Meta Descriptions – Klickrate in Google leidet.' : 'Meta Descriptions vorhanden.'),
+          checkRow(c.noAlt ? 'fail' : 'pass', 'ALT-Texte auf Bildern',
+            c.noAlt ? 'Bilder ohne ALT-Attribut – schadet SEO & Barrierefreiheit.' : 'ALT-Texte vorhanden.'),
+          checkRow(seo >= 80 ? 'pass' : seo >= 50 ? 'warn' : 'fail', 'SEO-Grundstruktur',
+            seo >= 80 ? 'SEO-Grundlagen gut umgesetzt.' : seo >= 50 ? 'SEO-Struktur teilweise optimierbar.' : 'Mehrere SEO-Grundlagen fehlen.'),
+        ].join('')
+      );
+
+      const a11ySection = section(
+        'Barrierefreiheit (BFSG)', a11y,
+        [
+          [a11y + '/100', 'Score Mobile', scoreColor(a11y)],
+          [s.accessibility.desktop + '/100', 'Score Desktop', scoreColor(s.accessibility.desktop)],
+          [c.contrastFail ? 'Fehler' : 'OK', 'Kontrast', c.contrastFail ? '#ef4444' : '#22c55e'],
+          [c.noLabel ? 'Fehler' : 'OK', 'Formularlabels', c.noLabel ? '#ef4444' : '#22c55e'],
+        ],
+        [
+          checkRow(c.contrastFail ? 'fail' : 'pass', 'Kontrastverhältnis (WCAG)',
+            c.contrastFail ? 'Texte unterschreiten WCAG AA (4.5:1). BFSG-relevant.' : 'Kontraste entsprechen dem WCAG-Standard.'),
+          checkRow(c.noLabel ? 'fail' : 'pass', 'Formularlabels',
+            c.noLabel ? 'Formularfelder ohne Label – Screenreader können nicht navigieren.' : 'Formularfelder korrekt beschriftet.'),
+          checkRow(a11y >= 80 ? 'pass' : a11y >= 50 ? 'warn' : 'fail', 'Gesamte Barrierefreiheit',
+            a11y >= 80 ? 'Barrierefreiheit gut umgesetzt.' : a11y >= 50 ? 'Mehrere Barrierefreiheitsprobleme vorhanden.' : 'Erhebliche Mängel – BFSG-Pflicht beachten.'),
+        ].join('')
+      );
+
+      const secSection = section(
+        'Sicherheit & Best Practices', bp,
+        [
+          [bp + '/100', 'Score Mobile', scoreColor(bp)],
+          [s.bestPractices.desktop + '/100', 'Score Desktop', scoreColor(s.bestPractices.desktop)],
+          [c.hasHttps ? 'Aktiv' : 'Fehlt', 'HTTPS', c.hasHttps ? '#22c55e' : '#ef4444'],
+        ],
+        [
+          checkRow(c.hasHttps ? 'pass' : 'fail', 'HTTPS & SSL',
+            c.hasHttps ? 'HTTPS korrekt eingerichtet.' : 'Kein HTTPS erkannt – kritisch für Shops.'),
+          checkRow(bp >= 80 ? 'pass' : bp >= 50 ? 'warn' : 'fail', 'Best Practices',
+            bp >= 80 ? 'Technische Best Practices werden eingehalten.' : bp >= 50 ? 'Einige Best Practices fehlen.' : 'Mehrere sicherheitsrelevante Probleme erkannt.'),
+        ].join('')
+      );
+
+      const mobSection = section(
+        'Mobile-Optimierung', mob,
+        [
+          [mob + '/100', 'Gesamt Mobile', scoreColor(mob)],
+          [c.viewport ? 'OK' : 'Fehlt', 'Viewport', c.viewport ? '#22c55e' : '#ef4444'],
+          [c.tapTargets ? 'Klein' : 'OK', 'Tap-Targets', c.tapTargets ? '#f59e0b' : '#22c55e'],
+          [c.fontSize ? 'Klein' : 'OK', 'Schriftgröße', c.fontSize ? '#f59e0b' : '#22c55e'],
+        ],
+        [
+          checkRow(c.viewport ? 'pass' : 'fail', 'Viewport konfiguriert',
+            c.viewport ? 'Viewport-Meta-Tag korrekt gesetzt.' : 'Viewport-Meta-Tag fehlt – Mobile-Darstellung fehlerhaft.'),
+          checkRow(c.tapTargets ? 'warn' : 'pass', 'Tap-Targets (Buttons & Links)',
+            c.tapTargets ? 'Buttons/Links zu klein oder zu nah beieinander.' : 'Tap-Targets ausreichend groß.'),
+          checkRow(c.fontSize ? 'warn' : 'pass', 'Schriftgröße auf Mobile',
+            c.fontSize ? 'Texte teilweise zu klein auf Mobilgeräten (< 12px).' : 'Schriftgrößen für Mobile geeignet.'),
+        ].join('')
+      );
+
+      return [perfSection, seoSection, a11ySection, secSection, mobSection].join('');
+    }
+
     function buildResult(data) {
       const s = data.scores;
       const total = Math.round((s.performance.mobile + s.seo.mobile + s.accessibility.mobile + s.bestPractices.mobile) / 4);
@@ -605,8 +693,6 @@
       const badgeText = total >= 80 ? 'Gut aufgestellt' : total >= 50 ? 'Optimierungspotenzial' : 'Dringender Handlungsbedarf';
       const titleText = total >= 80 ? 'Ihr Shop performt solide' : total >= 50 ? 'Ihr Shop hat konkrete Lücken' : 'Ihr Shop verliert Umsatz';
       const displayUrl = data.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-
-      const categories = buildCategories(s, c);
 
       root.querySelector('#va-result').innerHTML = `
       <div class="va-result-header">
@@ -638,7 +724,7 @@
         ${vitalCard('TTFB', v.ttfb)}
       </div>
 
-      ${categories}
+      ${buildCategories(s, c, v)}
 
       <div class="va-cta">
         <h3>Wir beheben das für Sie</h3>
@@ -650,9 +736,7 @@
       setTimeout(() => {
         const ring = root.querySelector('#va-ring');
         if (ring) ring.style.strokeDashoffset = 188.4 * (1 - total / 100);
-        root.querySelectorAll('.va-metric-bar[data-w]').forEach(bar => {
-          bar.style.width = bar.dataset.w;
-        });
+        root.querySelectorAll('.va-metric-bar[data-w]').forEach(bar => { bar.style.width = bar.dataset.w; });
       }, 150);
 
       root.querySelectorAll('.va-section-header').forEach(h => {
@@ -681,165 +765,14 @@
       return `<div class="va-vital"><div class="va-vital-label">${label}</div><div class="va-vital-value">${value}</div></div>`;
     }
 
-    function checkRow(status, name, desc, action) {
-      return `
-      <div class="va-check">
-        <div class="va-check-icon ${status}">${statusIcon(status)}</div>
-        <div class="va-check-content">
-          <p class="va-check-name">${name}</p>
-          <p class="va-check-desc">${desc}</p>
-          ${action ? `<p class="va-check-action"><strong>v-lab Maßnahme:</strong> ${action}</p>` : ''}
-        </div>
-      </div>`;
-    }
-
-    function section(icon, title, score, checksHtml) {
-      const color = scoreColor(score);
-      return `
-      <div class="va-section">
-        <div class="va-section-header">
-          <span class="va-section-icon">${icon}</span>
-          <span class="va-section-title">${title}</span>
-          <div class="va-section-right">
-            <span class="va-section-score" style="color:${color}">${score}/100</span>
-            <span class="va-section-chevron">▾</span>
-          </div>
-        </div>
-        <div class="va-section-body">${checksHtml}</div>
-      </div>`;
-    }
-
-    function buildCategories(s, c) {
-      const perf = s.performance.mobile;
-      const perfChecks = [
-        checkRow(
-          perf >= 80 ? 'pass' : perf >= 50 ? 'warn' : 'fail',
-          'Ladezeit (LCP)',
-          perf >= 80 ? 'Seite lädt schnell – gute Nutzererfahrung.' : perf >= 50 ? 'Ladezeit ist ausbaufähig, besonders auf Mobile.' : 'Seite lädt zu langsam. Nutzer brechen ab, Conversion sinkt.',
-          perf < 80 ? 'Bildkomprimierung, Critical CSS, Server-Response-Zeit optimieren.' : ''
-        ),
-        checkRow(
-          c.imgIssues ? 'fail' : 'pass',
-          'Bildoptimierung',
-          c.imgIssues ? 'Bilder sind nicht optimal komprimiert – erhöht Ladezeit deutlich.' : 'Bilder sind gut optimiert.',
-          c.imgIssues ? 'Automatische Bildkomprimierung & WebP-Konvertierung einrichten.' : ''
-        ),
-        checkRow(
-          c.hasWebP ? 'pass' : 'warn',
-          'Moderne Bildformate (WebP/AVIF)',
-          c.hasWebP ? 'Moderne Bildformate werden verwendet – gut.' : 'Keine modernen Bildformate erkannt. Einsparungspotenzial vorhanden.',
-          !c.hasWebP ? 'WebP-/AVIF-Konvertierung im Theme oder CDN aktivieren.' : ''
-        ),
-        checkRow(
-          c.scriptCount > 20 ? 'fail' : c.scriptCount > 10 ? 'warn' : 'pass',
-          'JavaScript-Bloat',
-          `${c.scriptCount} externe Scripts erkannt. ${c.scriptCount > 20 ? 'Zu viele – deutliche Ladezeit-Bremse.' : c.scriptCount > 10 ? 'Etwas viel – prüfen.' : 'Überschaubar.'}`,
-          c.scriptCount > 10 ? 'Script-Audit durchführen, unnötige Apps & Tracking-Snippets entfernen.' : ''
-        ),
-      ];
-
-      const seo = s.seo.mobile;
-      const seoChecks = [
-        checkRow(
-          c.noMeta ? 'warn' : 'pass',
-          'Meta Descriptions',
-          c.noMeta ? 'Fehlende Meta Descriptions erkannt – Klickrate in Google leidet.' : 'Meta Descriptions vorhanden.',
-          c.noMeta ? 'Template-basierte Meta Descriptions für alle Seiten.' : ''
-        ),
-        checkRow(
-          c.noAlt ? 'fail' : 'pass',
-          'ALT-Texte auf Bildern',
-          c.noAlt ? 'Bilder ohne ALT-Attribut gefunden – schadet SEO & Barrierefreiheit.' : 'ALT-Texte vorhanden.',
-          c.noAlt ? 'KI-gestützte ALT-Text-Automatisierung für Produktbilder.' : ''
-        ),
-        checkRow(
-          seo >= 80 ? 'pass' : seo >= 50 ? 'warn' : 'fail',
-          'SEO-Grundstruktur',
-          seo >= 80 ? 'SEO-Grundlagen sind gut umgesetzt.' : seo >= 50 ? 'SEO-Struktur teilweise optimierbar.' : 'Mehrere SEO-Grundlagen fehlen.',
-          seo < 80 ? 'Vollständiger SEO-Audit: Title-Tags, H1-Struktur, interne Verlinkung.' : ''
-        ),
-      ];
-
-      const a11y = s.accessibility.mobile;
-      const a11yChecks = [
-        checkRow(
-          c.contrastFail ? 'fail' : 'pass',
-          'Kontrastverhältnis (WCAG)',
-          c.contrastFail ? 'Texte unterschreiten den WCAG AA Standard (4.5:1). BFSG-relevant.' : 'Kontraste entsprechen dem WCAG-Standard.',
-          c.contrastFail ? 'Farbanpassung nach WCAG 2.1 AA – besonders für hellgraue Texte.' : ''
-        ),
-        checkRow(
-          c.noLabel ? 'fail' : 'pass',
-          'Formularlabels',
-          c.noLabel ? 'Formularfelder ohne korrekte Label-Verknüpfung – Screenreader können nicht navigieren.' : 'Formularfelder korrekt beschriftet.',
-          c.noLabel ? 'Accessibility-Audit & Label-Implementierung im Theme.' : ''
-        ),
-        checkRow(
-          a11y >= 80 ? 'pass' : a11y >= 50 ? 'warn' : 'fail',
-          'Gesamte Barrierefreiheit',
-          a11y >= 80 ? 'Barrierefreiheit gut umgesetzt.' : a11y >= 50 ? 'Mehrere Barrierefreiheitsprobleme vorhanden.' : 'Erhebliche Barrierefreiheitsmängel – BFSG-Pflicht beachten.',
-          a11y < 80 ? 'BFSG-Compliance-Check & vollständiges Accessibility-Audit.' : ''
-        ),
-      ];
-
-      const bp = s.bestPractices.mobile;
-      const secChecks = [
-        checkRow(
-          c.hasHttps ? 'pass' : 'fail',
-          'HTTPS & SSL',
-          c.hasHttps ? 'HTTPS korrekt eingerichtet – Pflicht für Shop & Vertrauen.' : 'Kein HTTPS erkannt – kritisch für Shops.',
-          !c.hasHttps ? 'SSL-Zertifikat einrichten & HTTP-Weiterleitungen konfigurieren.' : ''
-        ),
-        checkRow(
-          bp >= 80 ? 'pass' : bp >= 50 ? 'warn' : 'fail',
-          'Best Practices & Sicherheit',
-          bp >= 80 ? 'Technische Best Practices werden eingehalten.' : bp >= 50 ? 'Einige Best Practices fehlen.' : 'Mehrere sicherheitsrelevante Probleme erkannt.',
-          bp < 80 ? 'Security-Header, veraltete Libraries & Konsolen-Fehler prüfen.' : ''
-        ),
-      ];
-
-      const mobScore = Math.round((s.performance.mobile + s.accessibility.mobile) / 2);
-      const mobChecks = [
-        checkRow(
-          c.viewport ? 'pass' : 'fail',
-          'Viewport konfiguriert',
-          c.viewport ? 'Viewport-Meta-Tag korrekt gesetzt.' : 'Viewport-Meta-Tag fehlt – Mobile-Darstellung fehlerhaft.',
-          !c.viewport ? 'Viewport-Meta-Tag in Theme eintragen.' : ''
-        ),
-        checkRow(
-          c.tapTargets ? 'warn' : 'pass',
-          'Tap-Targets (Buttons & Links)',
-          c.tapTargets ? 'Buttons/Links zu klein oder zu nah beieinander – Mobile-Nutzung erschwert.' : 'Tap-Targets ausreichend groß.',
-          c.tapTargets ? 'Mindestgröße 48×48px für alle interaktiven Elemente sicherstellen.' : ''
-        ),
-        checkRow(
-          c.fontSize ? 'warn' : 'pass',
-          'Schriftgröße auf Mobile',
-          c.fontSize ? 'Texte teilweise zu klein auf Mobilgeräten (< 12px).' : 'Schriftgrößen für Mobile geeignet.',
-          c.fontSize ? 'Mindestschriftgröße 16px für Fließtexte auf Mobile.' : ''
-        ),
-      ];
-
-      return [
-        section('⚡', 'Performance', perf, perfChecks.join('')),
-        section('🔍', 'SEO', seo, seoChecks.join('')),
-        section('♿', 'Barrierefreiheit (BFSG)', a11y, a11yChecks.join('')),
-        section('🔒', 'Sicherheit & Best Practices', bp, secChecks.join('')),
-        section('📱', 'Mobile-Optimierung', mobScore, mobChecks.join('')),
-      ].join('');
-    }
-
     /* ── Events ── */
     root.querySelector('#va-start').addEventListener('click', async () => {
       const url = root.querySelector('#va-url').value.trim();
-      const email = root.querySelector('#va-email').value.trim();
       if (!url) { root.querySelector('#va-url').focus(); return; }
 
       show('va-loading');
 
-      let apiDone = false;
-      let apiData = null;
-      let animDone = false;
+      let apiDone = false, apiData = null, animDone = false;
 
       animateLoading(() => {
         animDone = true;
