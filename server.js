@@ -21,8 +21,8 @@ app.get('/audit', async (req, res) => {
     const catParam = categories.map(c => `category=${c}`).join('&');
 
     const [mobileRes, desktopRes] = await Promise.all([
-      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(cleanUrl)}&strategy=mobile&${catParam}`),
-      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(cleanUrl)}&strategy=desktop&${catParam}`)
+      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(cleanUrl)}&strategy=mobile&${catParam}&key=AIzaSyABMoYvvt8MtQFTC2DMwciU3MuZDd5Z6YI`),
+      fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(cleanUrl)}&strategy=desktop&${catParam}&key=AIzaSyABMoYvvt8MtQFTC2DMwciU3MuZDd5Z6YI`)
     ]);
 
     const [mobile, desktop] = await Promise.all([mobileRes.json(), desktopRes.json()]);
