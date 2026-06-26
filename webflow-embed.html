@@ -1,896 +1,956 @@
+<div class="w-form" style="display:none">
+  <form id="audit-lead-notification-form" name="Audit Lead Notification" data-name="Audit Lead Notification"
+    method="post"><input name=audit_url><input name=name><input name=company><input type=email name=email><input
+      name=phone><input name=page_url><input name=submitted_at><input type=submit></form>
+  <div class="w-form-done"></div>
+  <div class="w-form-fail"></div>
+</div>
 <div id="vlab-audit-root"></div>
-
 <style>
+  #vlab-audit-root {
+    --vb: #0b0b0b;
+    --vbl: #12c8f4;
+    --vmd: rgba(255, 255, 255, .68);
+    --vld: rgba(255, 255, 255, .18);
+    --vm: #74706a;
+    --vl: rgba(11, 11, 11, .11);
+    --vc: #fffaf3;
+    --vcl: #fff;
+    --vg: #17a66a;
+    --vy: #c98a16;
+    --vr: #d94a3a;
+    --rlg: 20px;
+    --rmd: 14px;
+    --rsm: 10px
+  }
+
   #vlab-audit-root * {
-    box-sizing: border-box;
+    box-sizing: border-box
   }
 
-  .va-wrap {
-    font-family: "DM Sans", -apple-system, sans-serif;
-    max-width: 640px;
+  .vw {
+    font-family: "Assistant", sans-serif;
+    max-width: 980px;
     margin: 0 auto;
-    padding: 2rem 0;
+    padding: 0 0 clamp(2.5rem, 6vw, 5rem);
+    color: var(--vb)
   }
 
-  .va-step {
-    display: none;
+  .vs {
+    display: none
   }
 
-  .va-step.active {
-    display: block;
+  .vs.active {
+    display: block
   }
 
-  .va-field {
+  #vi {
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+    border: 1px solid var(--vld);
+    border-radius: var(--rlg);
+    background: linear-gradient(135deg, rgba(18, 200, 244, .16), rgba(18, 200, 244, .04)), rgba(255, 255, 255, .06);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(10px)
+  }
+
+  .vfs {
+    display: grid;
+    gap: .85rem
+  }
+
+  .vfr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .85rem
+  }
+
+  .vf {
     width: 100%;
-    padding: 13px 16px;
-    font-size: 15px;
-    border: 1.5px solid #e5e5e5;
-    border-radius: 12px;
+    font-family: inherit;
+    height: 58px;
+    padding: 0 1.35rem;
+    border: 1px solid var(--vld);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .10);
+    color: #fff;
+    font-size: .95rem;
+  }
+
+  .vf::placeholder {
+    color: rgba(255, 255, 255, .48)
+  }
+
+  .vf:focus {
+    outline: none;
+    border-color: rgba(18, 200, 244, .65);
+    background: rgba(255, 255, 255, .13)
+  }
+
+  .vf.ve {
+    border-color: rgba(217, 74, 58, .8) !important;
+    background: rgba(217, 74, 58, .08) !important
+  }
+
+  #vurl {
     background: #fff;
     color: #111;
-    margin-bottom: 10px;
-    transition: border-color 0.15s;
-    font-family: inherit;
+    border-color: #fff
   }
 
-  .va-field:focus {
-    outline: none;
-    border-color: #111;
+  #vurl::placeholder {
+    color: rgba(17, 17, 17, .42)
   }
 
-  .va-hint {
-    font-size: 12px;
-    color: #aaa;
+  #vurl:focus {
+    border-color: var(--vbl);
+    background: #fff
+  }
+
+  #vurl.ve {
+    border-color: rgba(217, 74, 58, .8) !important;
+    background: rgba(217, 74, 58, .06) !important
+  }
+
+  .vfw {
+    position: relative
+  }
+
+  .vfe {
+    display: none;
+    position: absolute;
+    bottom: -18px;
+    left: 1rem;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ff6b5b
+  }
+
+  .vfw.has-error .vfe {
+    display: block
+  }
+
+  .vbr {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.4rem
+  }
+
+  .vh {
+    margin: 1.25rem 0 0;
+    color: var(--vmd);
+    font-size: .86rem;
+    line-height: 1.5;
+    text-align: center
+  }
+
+  .vp {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1rem
+  }
+
+  .vp span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 .85rem;
+    border: 1px solid var(--vld);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, .7);
+    font-size: .76rem;
+    font-weight: 700
+  }
+
+  .vlo {
+    padding: clamp(1.75rem, 5vw, 3.25rem);
+    border: 1px solid var(--vld);
+    border-radius: var(--rlg);
+    background: linear-gradient(135deg, rgba(18, 200, 244, .14), rgba(18, 200, 244, .03)), rgba(255, 255, 255, .06);
+    color: #fff;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .28)
+  }
+
+  .vll {
+    max-width: 560px;
+    margin: 0 auto 1.6rem;
     text-align: center;
-    margin-top: 10px;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: .96;
+    font-weight: 750;
+    color: #fff
   }
 
-  /* ── LOADING ── */
-  .va-loading {
-    text-align: center;
-    padding: 3rem 0;
-  }
-
-  .va-loading-label {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 1.5rem;
-  }
-
-  .va-checks {
+  .vlc {
     list-style: none;
     padding: 0;
-    margin: 0 auto 2rem;
-    max-width: 300px;
-    text-align: left;
+    margin: 0 auto;
+    max-width: 540px;
+    border-top: 1px solid var(--vld)
   }
 
-  .va-checks li {
+  .vlc li {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 13px;
     font-size: 14px;
-    color: #666;
-    padding: 7px 0;
-    border-bottom: 1px solid #f0f0f0;
+    color: var(--vmd);
+    padding: 16px 0;
+    border-bottom: 1px solid var(--vld)
   }
 
-  .va-checks li:last-child {
-    border-bottom: none;
-  }
-
-  .va-dot {
-    width: 8px;
-    height: 8px;
+  .vd {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: #e5e5e5;
-    flex-shrink: 0;
+    background: rgba(255, 255, 255, .24);
+    flex-shrink: 0
   }
 
-  .va-checks li.done .va-dot {
-    background: #22c55e;
+  .vlc li.done {
+    color: #fff
   }
 
-  .va-checks li.running .va-dot {
-    background: #f59e0b;
-    animation: vapulse 0.7s infinite alternate;
+  .vlc li.done .vd {
+    background: var(--vg)
   }
 
-  @keyframes vapulse {
+  .vlc li.running {
+    color: #fff
+  }
+
+  .vlc li.running .vd {
+    background: var(--vbl);
+    animation: vpa .7s infinite alternate
+  }
+
+  @keyframes vpa {
     from {
-      opacity: 0.3;
+      opacity: .35;
+      transform: scale(.9)
     }
 
     to {
       opacity: 1;
+      transform: scale(1.15)
     }
   }
 
-  /* ── ANALYSE-LOADER (nach allen checks grün) ── */
-  .va-analysis-loader {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-top: 1rem;
-    padding: 1.5rem;
-    background: #fafafa;
-    border-radius: 14px;
-    border: 1px solid #f0f0f0;
-  }
-
-  .va-analysis-loader.visible {
-    display: flex;
-  }
-
-  .va-circle-loader {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-  }
-
-  .va-circle-loader circle {
-    fill: none;
-    stroke-width: 4;
-    stroke-linecap: round;
-  }
-
-  .va-circle-track {
-    stroke: #e5e5e5;
-  }
-
-  .va-circle-spin {
-    stroke: #111;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: vaspin 1.4s ease-in-out infinite;
-    transform-origin: center;
-  }
-
-  @keyframes vaspin {
-    0% {
-      stroke-dashoffset: 100;
-      transform: rotate(0deg);
-    }
-
-    50% {
-      stroke-dashoffset: 25;
-      transform: rotate(180deg);
-    }
-
-    100% {
-      stroke-dashoffset: 100;
-      transform: rotate(360deg);
-    }
-  }
-
-  .va-analysis-phrase {
-    font-size: 13px;
-    color: #666;
-    text-align: center;
-    line-height: 1.5;
-    min-height: 36px;
-    transition: opacity 0.3s;
-  }
-
-  /* ── RESULT ── */
-  .va-result-header {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    padding: 1.5rem 0 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 1.5rem;
-  }
-
-  .va-result-meta h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 4px;
-    color: #111;
-    letter-spacing: -0.3px;
-  }
-
-  .va-result-meta p {
-    font-size: 13px;
-    color: #888;
-    margin: 0 0 6px;
-  }
-
-  .va-badge {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 999px;
-    letter-spacing: 0.02em;
-  }
-
-  .va-badge.good {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .va-badge.ok {
-    background: #fef9c3;
-    color: #854d0e;
-  }
-
-  .va-badge.bad {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  .va-metrics {
+  .vrh {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-
-  .va-metric {
-    background: #f8f8f8;
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-
-  .va-metric-top {
-    display: flex;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
+    gap: clamp(1rem, 3vw, 2rem);
+    padding: clamp(1.25rem, 4vw, 2rem);
+    border: 1px solid var(--vl);
+    border-radius: var(--rlg);
+    background: var(--vc);
+    margin-bottom: 14px
   }
 
-  .va-metric-label {
-    font-size: 12px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .vrh svg {
+    width: 96px;
+    height: 96px
   }
 
-  .va-metric-scores {
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
+  .vrm h2 {
+    margin: 0 0 10px;
+    color: var(--vb);
   }
 
-  .va-metric-main {
-    font-size: 26px;
-    font-weight: 700;
-    color: #111;
-    letter-spacing: -1px;
+  .vrm p {
+    font-size: 14px;
+    color: var(--vm);
+    margin: 0 0 12px
   }
 
-  .va-metric-sub {
-    font-size: 12px;
-    color: #aaa;
-  }
-
-  .va-metric-bar-bg {
-    height: 3px;
-    background: #e5e5e5;
-    border-radius: 2px;
-  }
-
-  .va-metric-bar {
-    height: 3px;
-    border-radius: 2px;
-    transition: width 1s ease;
-  }
-
-  .va-vitals {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 1.5rem;
-  }
-
-  .va-vital {
-    background: #f8f8f8;
-    border-radius: 10px;
-    padding: 10px 12px;
-    text-align: center;
-  }
-
-  .va-vital-label {
+  .vbg {
+    display: inline-flex;
+    align-items: center;
     font-size: 10px;
-    color: #aaa;
+    font-weight: 900;
+    padding: 7px 11px;
+    border-radius: 999px;
+    text-transform: uppercase
+  }
+
+  .vbg.good {
+    background: rgba(23, 166, 106, .12);
+    color: var(--vg)
+  }
+
+  .vbg.ok {
+    background: rgba(201, 138, 22, .14);
+    color: var(--vy)
+  }
+
+  .vbg.bad {
+    background: rgba(217, 74, 58, .12);
+    color: var(--vr)
+  }
+
+  .vsb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--vl);
+    flex-wrap: wrap
+  }
+
+  .vsu {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--vl);
+    border-radius: 999px;
+    background: rgba(11, 11, 11, .04);
+    color: var(--vm);
+    font-size: 12px;
+    font-family: "Assistant", sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+  }
+
+  .vsu:focus {
+    outline: none
+  }
+
+  .vsbn {
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--vl);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--vb);
+    font-size: 12px;
+    font-weight: 800;
+    font-family: "Assistant", sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .vsbn.dl {
+    background: var(--vb);
+    color: #fff;
+    border-color: var(--vb)
+  }
+
+  .vsbn:disabled {
+    opacity: .5;
+    cursor: not-allowed
+  }
+
+  .vmg {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 14px
+  }
+
+  .vmc {
+    background: var(--vcl);
+    border: 1px solid var(--vl);
+    border-radius: var(--rmd);
+    padding: 18px
+  }
+
+  .vml {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 10px;
+    color: var(--vm);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
+    font-weight: 900
   }
 
-  .va-vital-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111;
-    letter-spacing: -0.5px;
+  .vms {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px
   }
 
-  /* ── SECTIONS ── */
-  .va-section {
-    border: 1px solid #f0f0f0;
-    border-radius: 12px;
+  .vmm {
+    font-size: 42px;
+    line-height: .86;
+    font-weight: 750;
+  }
+
+  .vmsb {
+    font-size: 11px;
+    color: var(--vm);
+    padding-bottom: 2px
+  }
+
+  .vmbb {
+    height: 2px;
+    background: rgba(11, 11, 11, .10);
+    border-radius: 999px
+  }
+
+  .vmb {
+    height: 2px;
+    border-radius: 999px;
+    transition: width 1s ease
+  }
+
+  .vvg {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 14px
+  }
+
+  .vvc {
+    background: var(--vcl);
+    border: 1px solid var(--vl);
+    border-radius: var(--rmd);
+    padding: 14px 16px
+  }
+
+  .vvl {
+    font-size: 10px;
+    color: var(--vm);
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 9px
+  }
+
+  .vvv {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 750;
+    color: var(--vb);
+  }
+
+  .vest {
+    font-size: 8px;
+    color: var(--vm);
+    margin-top: 1px;
+    opacity: .5;
+    letter-spacing: 0
+  }
+
+  .vsc {
+    border: 1px solid var(--vl);
+    border-radius: var(--rmd);
     overflow: hidden;
     margin-bottom: 10px;
+    background: #fff
   }
 
-  .va-section-header {
+  .vsh {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
-    background: #fafafa;
+    padding: 18px 20px;
+    background: #fff;
     cursor: pointer;
     user-select: none;
-    transition: background 0.1s;
   }
 
-  .va-section-header:hover {
-    background: #f5f5f5;
-  }
-
-  .va-section-title {
+  .vst {
     flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    color: #111;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--vb);
   }
 
-  .va-section-right {
+  .vsr {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px
   }
 
-  .va-section-score {
+  .vss {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 900
   }
 
-  .va-section-chevron {
-    font-size: 12px;
-    color: #aaa;
-    transition: transform 0.2s;
+  .vschev {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--vl);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--vm);
+    transition: transform .2s
   }
 
-  .va-section.open .va-section-chevron {
-    transform: rotate(180deg);
+  .vsc.open .vschev {
+    transform: rotate(180deg)
   }
 
-  .va-section-body {
+  .vscb {
     display: none;
-    padding: 0 16px 12px;
+    padding: 0 20px 16px
   }
 
-  .va-section.open .va-section-body {
-    display: block;
+  .vsc.open .vscb {
+    display: block
   }
 
-  .va-kpi-grid {
+  .vkg {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    padding: 14px 0 10px;
-    border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 10px;
+    padding: 16px 0 12px;
+    border-top: 1px solid var(--vl);
+    border-bottom: 1px solid var(--vl);
+    margin-bottom: 8px
   }
 
-  .va-kpi {
-    background: #f8f8f8;
-    border-radius: 8px;
-    padding: 10px 12px;
-    text-align: center;
+  .vk {
+    background: #fbf7ef;
+    border-radius: var(--rsm);
+    padding: 13px 12px
   }
 
-  .va-kpi-value {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 2px;
+  .vkv {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 750;
+    ;
+    margin-bottom: 8px
   }
 
-  .va-kpi-label {
+  .vkl {
     font-size: 10px;
-    color: #aaa;
+    color: var(--vm);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 900
   }
 
-  .va-check {
+  .vch {
     display: flex;
-    gap: 12px;
-    padding: 11px 0;
-    border-bottom: 1px solid #f5f5f5;
+    gap: 13px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--vl)
   }
 
-  .va-check:last-child {
-    border-bottom: none;
+  .vch:last-child {
+    border-bottom: none
   }
 
-  .va-check-icon {
+  .vci {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    margin-top: 1px;
+    font-size: 11px;
+    font-weight: 900;
+    margin-top: 1px
   }
 
-  .va-check-icon.pass {
-    background: #dcfce7;
-    color: #166534;
+  .vci.pass {
+    background: rgba(23, 166, 106, .12);
+    color: var(--vg)
   }
 
-  .va-check-icon.warn {
-    background: #fef9c3;
-    color: #854d0e;
+  .vci.warn {
+    background: rgba(201, 138, 22, .14);
+    color: var(--vy)
   }
 
-  .va-check-icon.fail {
-    background: #fee2e2;
-    color: #991b1b;
+  .vci.fail {
+    background: rgba(217, 74, 58, .12);
+    color: var(--vr)
   }
 
-  .va-check-content {
+  .vcc {
     flex: 1;
+    min-width: 0
   }
 
-  .va-check-name {
+  .vcn {
     font-size: 13px;
-    font-weight: 600;
-    color: #111;
-    margin: 0 0 3px;
+    font-weight: 900;
+    color: var(--vb);
+    margin: 0 0 4px;
   }
 
-  .va-check-desc {
-    font-size: 12px;
-    color: #666;
+  .vcd {
+    font-size: 13px;
+    color: var(--vm);
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.55
   }
 
-  .va-cta {
-    margin-top: 1.5rem;
-    padding: 1.75rem;
-    background: #111;
-    border-radius: 16px;
+  .vie {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap
+  }
+
+  .view {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start
+  }
+
+  .vit {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--vl);
+    background: #f0ece4
+  }
+
+  .vitb {
+    width: 72px;
+    height: 48px;
+    border-radius: 6px;
+    border: 1px solid var(--vl);
+    background: #f0ece4;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--vm);
     text-align: center;
-    color: #fff;
+    padding: 4px
   }
 
-  .va-cta h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 6px;
-    letter-spacing: -0.3px;
+  .viu {
+    font-size: 10px;
+    color: var(--vm);
+    margin-top: 4px;
+    word-break: break-all;
+    max-width: 120px;
+    line-height: 1.3
   }
 
-  .va-cta p {
+  .vsn {
+    font-size: 11px;
+    color: var(--vm);
+    font-style: italic;
+    margin-top: 8px;
+    line-height: 1.5
+  }
+
+  .vtl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px
+  }
+
+  .vtp {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid var(--vl)
+  }
+
+  .vtp.hoch {
+    background: rgba(217, 74, 58, .08);
+    color: var(--vr);
+    border-color: rgba(217, 74, 58, .2)
+  }
+
+  .vtp.mittel {
+    background: rgba(201, 138, 22, .08);
+    color: var(--vy);
+    border-color: rgba(201, 138, 22, .2)
+  }
+
+  .vtp.niedrig,
+  .vtp.none {
+    background: rgba(23, 166, 106, .08);
+    color: var(--vg);
+    border-color: rgba(23, 166, 106, .2)
+  }
+
+  .vlb {
+    margin-bottom: 14px;
+    padding: 16px 20px;
+    border: 1px solid rgba(217, 74, 58, .28);
+    border-radius: var(--rmd);
+    background: rgba(217, 74, 58, .05);
     font-size: 13px;
-    color: #aaa;
-    margin: 0 0 1.25rem;
+    line-height: 1.55;
+    color: var(--vcl)
   }
 
-  .va-cta-btn {
-    display: inline-block;
-    padding: 12px 28px;
+  .vlb strong {
+    color: var(--vr)
+  }
+
+  .vcta {
+    margin-top: 18px;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background: var(--vb);
+    border-radius: var(--rlg);
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 1rem
+  }
+
+  .vcta h3 {
+    max-width: 560px;
+    font-size: clamp(1.7rem, 4vw, 3.2rem);
+    line-height: 1.2;
+    font-weight: 500;
+    margin: 0 0 10px;
+  }
+
+  .vcta p {
+    max-width: 560px;
     font-size: 14px;
-    font-weight: 600;
-    color: #111;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .64);
+    margin: 0
+  }
+
+  .vcta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 14px 22px;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--vb);
     background: #fff;
-    border: none;
-    border-radius: 10px;
+    border: 1px solid #fff;
+    border-radius: 999px;
     cursor: pointer;
     font-family: inherit;
     text-decoration: none;
-    transition: opacity 0.15s;
+    transition: transform .18s, opacity .18s
   }
 
-  .va-cta-btn:hover {
-    opacity: 0.85;
-  }
-
-  .va-error {
+  .verr {
     text-align: center;
     padding: 2rem;
-    background: #fef2f2;
-    border-radius: 12px;
-    color: #991b1b;
-    font-size: 14px;
+    background: #fff;
+    border: 1px solid rgba(217, 74, 58, .22);
+    border-radius: var(--rmd);
+    color: var(--vr);
+    font-size: 14px
   }
 
-  .va-retry {
-    margin-top: 12px;
-    padding: 10px 20px;
-    background: #111;
+  .vret {
+    margin-top: 14px;
+    padding: 12px 20px;
+    background: var(--vb);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 999px;
     cursor: pointer;
     font-size: 13px;
-    font-family: inherit;
+    font-family: inherit
   }
 
-  @media (max-width: 480px) {
-    .va-metrics {
-      grid-template-columns: 1fr;
+  .vdis {
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: rgba(11, 11, 11, .04);
+    border-radius: var(--rsm);
+    font-size: 11px;
+    color: var(--vm);
+    line-height: 1.5
+  }
+
+  .vpo {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px
+  }
+
+  .vpo.active {
+    display: flex
+  }
+
+  .vps {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, .2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg)
+    }
+  }
+
+  .vpl {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: "Assistant", sans-serif
+  }
+
+  .vgw {
+    position: relative;
+    border-radius: var(--rmd);
+    overflow: hidden
+  }
+
+  .vgb {
+    max-height: 330px;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    opacity: .25;
+    filter: none
+  }
+
+  .vgo {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    min-height: 330px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+    background: linear-gradient(180deg, rgba(255, 250, 243, .98), rgba(255, 250, 243, .94));
+    border: 1px solid var(--vl);
+    border-radius: var(--rmd);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, .18)
+  }
+
+  .vgo p {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--vb);
+    text-align: center;
+    margin: 0;
+    line-height: 1.05;
+    letter-spacing: -.02em
+  }
+
+  .vgo small {
+    font-size: 12px;
+    color: var(--vm);
+    text-align: center;
+    display: block
+  }
+
+  .vgr {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 390px
+  }
+
+  .vgi {
+    flex: 1;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--vl);
+    border-radius: 999px;
+    font-size: 14px;
+    font-family: "Assistant", sans-serif;
+    color: var(--vb);
+    background: #fff
+  }
+
+  .vgi:focus {
+    outline: none;
+    border-color: var(--vbl)
+  }
+
+  .vgi::placeholder {
+    color: rgba(11, 11, 11, .35)
+  }
+
+  .vgbtn {
+    height: 44px;
+    padding: 0 22px;
+    background: var(--vb);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: "Assistant", sans-serif;
+    cursor: pointer
+  }
+
+  .vgerr {
+    font-size: 11px;
+    color: var(--vr);
+    margin: 0
+  }
+
+  @media(max-width:780px) {
+    .vmg {
+      grid-template-columns: repeat(2, 1fr)
     }
 
-    .va-vitals {
-      grid-template-columns: repeat(2, 1fr);
+    .vvg {
+      grid-template-columns: repeat(3, 1fr)
     }
 
-    .va-kpi-grid {
-      grid-template-columns: repeat(2, 1fr);
+    .vcta {
+      grid-template-columns: 1fr
+    }
+
+    .vfr {
+      grid-template-columns: 1fr
+    }
+
+    #vst.button-7 {
+      width: 100%
+    }
+  }
+
+  @media(max-width:520px) {
+    .vrh {
+      grid-template-columns: 1fr
+    }
+
+    .vmg,
+    .vvg {
+      grid-template-columns: 1fr
+    }
+
+    .vkg {
+      grid-template-columns: repeat(2, 1fr)
     }
   }
 </style>
-
-<script>
-  (function () {
-
-    const API_BASE = 'https://website-performance-uyti.onrender.com';
-    const CTA_URL = 'https://v-lab.one/kontakt';
-
-    const PHRASES = [
-      'Ladezeiten werden ausgewertet...',
-      'Core Web Vitals werden berechnet...',
-      'SEO-Signale werden gewichtet...',
-      'Barrierefreiheits-Score wird ermittelt...',
-      'Sicherheitsprüfung läuft...',
-      'Mobile-Performance wird bewertet...',
-      'Ergebnisse werden aufbereitet...',
-      'Optimierungspotenziale werden identifiziert...',
-      'Bericht wird zusammengestellt...',
-    ];
-
-    const root = document.getElementById('vlab-audit-root');
-
-    root.innerHTML = `
-    <div class="va-wrap">
-      <div class="va-step active" id="va-input">
-        <input class="va-field" type="url" id="va-url" placeholder="https://ihr-shop.de" />
-        <input class="va-field" type="email" id="va-email" placeholder="ihre@email.de (für den Report)" />
-        <button class="button centered" id="va-start">Jetzt kostenlos analysieren →</button>
-        <p class="va-hint">Nur öffentlich erreichbare Seiten · Keine Weitergabe an Dritte · DSGVO-konform</p>
-      </div>
-
-      <div class="va-step" id="va-loading">
-        <div class="va-loading">
-          <p class="va-loading-label" id="va-loading-label">Analyse wird gestartet...</p>
-          <ul class="va-checks">
-            <li id="vc-perf"><span class="va-dot"></span>Performance & Ladezeit</li>
-            <li id="vc-seo"><span class="va-dot"></span>SEO & Meta-Daten</li>
-            <li id="vc-a11y"><span class="va-dot"></span>Barrierefreiheit (BFSG)</li>
-            <li id="vc-security"><span class="va-dot"></span>Sicherheit & HTTPS</li>
-            <li id="vc-mobile"><span class="va-dot"></span>Mobile-Optimierung</li>
-          </ul>
-          <div class="va-analysis-loader" id="va-analysis-loader">
-            <svg class="va-circle-loader" viewBox="0 0 48 48">
-              <circle class="va-circle-track" cx="24" cy="24" r="20"/>
-              <circle class="va-circle-spin"  cx="24" cy="24" r="20" transform="rotate(-90 24 24)"/>
-            </svg>
-            <p class="va-analysis-phrase" id="va-analysis-phrase"></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="va-step" id="va-result"></div>
-    </div>
-  `;
-
-    function show(id) {
-      root.querySelectorAll('.va-step').forEach(s => s.classList.remove('active'));
-      root.querySelector('#' + id).classList.add('active');
-    }
-
-    function scoreColor(s) {
-      return s >= 80 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444';
-    }
-
-    function statusIcon(s) {
-      if (s === 'pass') return '✓';
-      if (s === 'warn') return '!';
-      return '✕';
-    }
-
-    const checkLabels = ['vc-perf', 'vc-seo', 'vc-a11y', 'vc-security', 'vc-mobile'];
-    const checkTexts = [
-      'Performance wird gemessen...',
-      'SEO-Signale werden geprüft...',
-      'Barrierefreiheit wird analysiert...',
-      'Sicherheits-Check läuft...',
-      'Mobile-Optimierung wird bewertet...',
-    ];
-
-    let phraseInterval = null;
-
-    function startPhraseLoop() {
-      const el = root.querySelector('#va-analysis-phrase');
-      const loader = root.querySelector('#va-analysis-loader');
-      loader.classList.add('visible');
-      let idx = 0;
-      el.textContent = PHRASES[idx];
-      phraseInterval = setInterval(() => {
-        el.style.opacity = '0';
-        setTimeout(() => {
-          idx = (idx + 1) % PHRASES.length;
-          el.textContent = PHRASES[idx];
-          el.style.opacity = '1';
-        }, 300);
-      }, 2200);
-    }
-
-    function stopPhraseLoop() {
-      if (phraseInterval) { clearInterval(phraseInterval); phraseInterval = null; }
-      const loader = root.querySelector('#va-analysis-loader');
-      if (loader) loader.classList.remove('visible');
-    }
-
-    function animateLoading(onDone) {
-      let i = 0;
-      function next() {
-        if (i > 0) {
-          const prev = root.querySelector('#' + checkLabels[i - 1]);
-          prev.classList.remove('running');
-          prev.classList.add('done');
-        }
-        if (i < checkLabels.length) {
-          root.querySelector('#' + checkLabels[i]).classList.add('running');
-          root.querySelector('#va-loading-label').textContent = checkTexts[i];
-          i++;
-          setTimeout(next, 1800 + Math.random() * 600);
-        } else {
-          root.querySelector('#va-loading-label').textContent = 'Daten werden ausgewertet...';
-          startPhraseLoop();
-          onDone();
-        }
-      }
-      next();
-    }
-
-    function kpiGrid(items) {
-      return `<div class="va-kpi-grid">${items.map(([val, label, color]) => `
-      <div class="va-kpi">
-        <div class="va-kpi-value" style="color:${color || '#111'}">${val}</div>
-        <div class="va-kpi-label">${label}</div>
-      </div>`).join('')}</div>`;
-    }
-
-    function checkRow(status, name, desc) {
-      return `
-      <div class="va-check">
-        <div class="va-check-icon ${status}">${statusIcon(status)}</div>
-        <div class="va-check-content">
-          <p class="va-check-name">${name}</p>
-          <p class="va-check-desc">${desc}</p>
-        </div>
-      </div>`;
-    }
-
-    function section(title, score, kpis, checksHtml) {
-      const color = scoreColor(score);
-      return `
-      <div class="va-section">
-        <div class="va-section-header">
-          <span class="va-section-title">${title}</span>
-          <div class="va-section-right">
-            <span class="va-section-score" style="color:${color}">${score}/100</span>
-            <span class="va-section-chevron">▾</span>
-          </div>
-        </div>
-        <div class="va-section-body">
-          ${kpiGrid(kpis)}
-          ${checksHtml}
-        </div>
-      </div>`;
-    }
-
-    function buildCategories(s, c, v) {
-      const perf = s.performance.mobile;
-      const seo = s.seo.mobile;
-      const a11y = s.accessibility.mobile;
-      const bp = s.bestPractices.mobile;
-      const mob = Math.round((perf + a11y) / 2);
-
-      const perfSection = section('Performance', perf, [
-        [v.lcp, 'LCP', perf >= 80 ? '#22c55e' : perf >= 50 ? '#f59e0b' : '#ef4444'],
-        [v.cls, 'CLS', perf >= 80 ? '#22c55e' : '#f59e0b'],
-        [v.ttfb, 'TTFB', perf >= 80 ? '#22c55e' : '#f59e0b'],
-        [s.performance.desktop + '/100', 'Desktop', scoreColor(s.performance.desktop)],
-        [c.scriptCount, 'Scripts', c.scriptCount > 20 ? '#ef4444' : c.scriptCount > 10 ? '#f59e0b' : '#22c55e'],
-        [c.hasWebP ? 'Ja' : 'Nein', 'WebP', c.hasWebP ? '#22c55e' : '#f59e0b'],
-      ], [
-        checkRow(perf >= 80 ? 'pass' : perf >= 50 ? 'warn' : 'fail', 'Ladezeit (LCP)',
-          perf >= 80 ? 'Seite lädt schnell – gute Nutzererfahrung.' : perf >= 50 ? 'Ladezeit ausbaufähig, besonders auf Mobile.' : 'Seite lädt zu langsam. Nutzer brechen ab, Conversion sinkt.'),
-        checkRow(c.imgIssues ? 'fail' : 'pass', 'Bildoptimierung',
-          c.imgIssues ? 'Bilder nicht optimal komprimiert – erhöht Ladezeit.' : 'Bilder sind gut optimiert.'),
-        checkRow(c.hasWebP ? 'pass' : 'warn', 'Moderne Bildformate (WebP/AVIF)',
-          c.hasWebP ? 'Moderne Bildformate werden verwendet.' : 'Keine modernen Bildformate erkannt.'),
-        checkRow(c.scriptCount > 20 ? 'fail' : c.scriptCount > 10 ? 'warn' : 'pass', 'JavaScript',
-          `${c.scriptCount} externe Scripts erkannt. ${c.scriptCount > 20 ? 'Deutliche Ladezeit-Bremse.' : c.scriptCount > 10 ? 'Prüfen empfohlen.' : 'Überschaubar.'}`),
-      ].join(''));
-
-      const seoSection = section('SEO', seo, [
-        [seo + '/100', 'Score Mobile', scoreColor(seo)],
-        [s.seo.desktop + '/100', 'Score Desktop', scoreColor(s.seo.desktop)],
-        [c.noMeta ? 'Fehlt' : 'OK', 'Meta Desc.', c.noMeta ? '#ef4444' : '#22c55e'],
-        [c.noAlt ? 'Fehlt' : 'OK', 'ALT-Texte', c.noAlt ? '#ef4444' : '#22c55e'],
-      ], [
-        checkRow(c.noMeta ? 'warn' : 'pass', 'Meta Descriptions',
-          c.noMeta ? 'Fehlende Meta Descriptions – Klickrate in Google leidet.' : 'Meta Descriptions vorhanden.'),
-        checkRow(c.noAlt ? 'fail' : 'pass', 'ALT-Texte auf Bildern',
-          c.noAlt ? 'Bilder ohne ALT-Attribut – schadet SEO & Barrierefreiheit.' : 'ALT-Texte vorhanden.'),
-        checkRow(seo >= 80 ? 'pass' : seo >= 50 ? 'warn' : 'fail', 'SEO-Grundstruktur',
-          seo >= 80 ? 'SEO-Grundlagen gut umgesetzt.' : seo >= 50 ? 'SEO-Struktur teilweise optimierbar.' : 'Mehrere SEO-Grundlagen fehlen.'),
-      ].join(''));
-
-      const a11ySection = section('Barrierefreiheit (BFSG)', a11y, [
-        [a11y + '/100', 'Score Mobile', scoreColor(a11y)],
-        [s.accessibility.desktop + '/100', 'Score Desktop', scoreColor(s.accessibility.desktop)],
-        [c.contrastFail ? 'Fehler' : 'OK', 'Kontrast', c.contrastFail ? '#ef4444' : '#22c55e'],
-        [c.noLabel ? 'Fehler' : 'OK', 'Formularlabels', c.noLabel ? '#ef4444' : '#22c55e'],
-      ], [
-        checkRow(c.contrastFail ? 'fail' : 'pass', 'Kontrastverhältnis (WCAG)',
-          c.contrastFail ? 'Texte unterschreiten WCAG AA (4.5:1). BFSG-relevant.' : 'Kontraste entsprechen dem WCAG-Standard.'),
-        checkRow(c.noLabel ? 'fail' : 'pass', 'Formularlabels',
-          c.noLabel ? 'Formularfelder ohne Label – Screenreader können nicht navigieren.' : 'Formularfelder korrekt beschriftet.'),
-        checkRow(a11y >= 80 ? 'pass' : a11y >= 50 ? 'warn' : 'fail', 'Gesamte Barrierefreiheit',
-          a11y >= 80 ? 'Barrierefreiheit gut umgesetzt.' : a11y >= 50 ? 'Mehrere Probleme vorhanden.' : 'Erhebliche Mängel – BFSG-Pflicht beachten.'),
-      ].join(''));
-
-      const secSection = section('Sicherheit & Best Practices', bp, [
-        [bp + '/100', 'Score Mobile', scoreColor(bp)],
-        [s.bestPractices.desktop + '/100', 'Score Desktop', scoreColor(s.bestPractices.desktop)],
-        [c.hasHttps ? 'Aktiv' : 'Fehlt', 'HTTPS', c.hasHttps ? '#22c55e' : '#ef4444'],
-      ], [
-        checkRow(c.hasHttps ? 'pass' : 'fail', 'HTTPS & SSL',
-          c.hasHttps ? 'HTTPS korrekt eingerichtet.' : 'Kein HTTPS erkannt – kritisch für Shops.'),
-        checkRow(bp >= 80 ? 'pass' : bp >= 50 ? 'warn' : 'fail', 'Best Practices',
-          bp >= 80 ? 'Technische Best Practices werden eingehalten.' : bp >= 50 ? 'Einige Best Practices fehlen.' : 'Mehrere sicherheitsrelevante Probleme erkannt.'),
-      ].join(''));
-
-      const mobSection = section('Mobile-Optimierung', mob, [
-        [mob + '/100', 'Gesamt Mobile', scoreColor(mob)],
-        [c.viewport ? 'OK' : 'Fehlt', 'Viewport', c.viewport ? '#22c55e' : '#ef4444'],
-        [c.tapTargets ? 'Klein' : 'OK', 'Tap-Targets', c.tapTargets ? '#f59e0b' : '#22c55e'],
-        [c.fontSize ? 'Klein' : 'OK', 'Schriftgröße', c.fontSize ? '#f59e0b' : '#22c55e'],
-      ], [
-        checkRow(c.viewport ? 'pass' : 'fail', 'Viewport konfiguriert',
-          c.viewport ? 'Viewport-Meta-Tag korrekt gesetzt.' : 'Viewport-Meta-Tag fehlt – Mobile-Darstellung fehlerhaft.'),
-        checkRow(c.tapTargets ? 'warn' : 'pass', 'Tap-Targets (Buttons & Links)',
-          c.tapTargets ? 'Buttons/Links zu klein oder zu nah beieinander.' : 'Tap-Targets ausreichend groß.'),
-        checkRow(c.fontSize ? 'warn' : 'pass', 'Schriftgröße auf Mobile',
-          c.fontSize ? 'Texte teilweise zu klein auf Mobilgeräten (< 12px).' : 'Schriftgrößen für Mobile geeignet.'),
-      ].join(''));
-
-      return [perfSection, seoSection, a11ySection, secSection, mobSection].join('');
-    }
-
-    function buildResult(data) {
-      stopPhraseLoop();
-
-      const s = data.scores;
-      const total = Math.round((s.performance.mobile + s.seo.mobile + s.accessibility.mobile + s.bestPractices.mobile) / 4);
-      const c = data.checks;
-      const v = data.vitals;
-
-      const badgeClass = total >= 80 ? 'good' : total >= 50 ? 'ok' : 'bad';
-      const badgeText = total >= 80 ? 'Gut aufgestellt' : total >= 50 ? 'Optimierungspotenzial' : 'Dringender Handlungsbedarf';
-      const titleText = total >= 80 ? 'Ihr Shop performt solide' : total >= 50 ? 'Ihr Shop hat konkrete Lücken' : 'Ihr Shop verliert Umsatz';
-      const displayUrl = data.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-
-      root.querySelector('#va-result').innerHTML = `
-      <div class="va-result-header">
-        <svg width="72" height="72" viewBox="0 0 72 72" aria-label="Gesamtscore ${total} von 100">
-          <circle cx="36" cy="36" r="30" fill="none" stroke="#f0f0f0" stroke-width="6"/>
-          <circle id="va-ring" cx="36" cy="36" r="30" fill="none" stroke="${scoreColor(total)}" stroke-width="6"
-            stroke-dasharray="188.4" stroke-dashoffset="188.4" stroke-linecap="round"
-            transform="rotate(-90 36 36)" style="transition: stroke-dashoffset 1.2s ease;"/>
-          <text x="36" y="41" text-anchor="middle" font-size="17" font-weight="700" fill="#111">${total}</text>
-        </svg>
-        <div class="va-result-meta">
-          <h2>${titleText}</h2>
-          <p>${displayUrl}</p>
-          <span class="va-badge ${badgeClass}">${badgeText}</span>
-        </div>
-      </div>
-
-      <div class="va-metrics">
-        ${metricCard('Performance', s.performance.mobile, s.performance.desktop)}
-        ${metricCard('SEO', s.seo.mobile, s.seo.desktop)}
-        ${metricCard('Barrierefreiheit', s.accessibility.mobile, s.accessibility.desktop)}
-        ${metricCard('Best Practices', s.bestPractices.mobile, s.bestPractices.desktop)}
-      </div>
-
-      <div class="va-vitals">
-        ${vitalCard('LCP', v.lcp)}
-        ${vitalCard('TBT', v.fid)}
-        ${vitalCard('CLS', v.cls)}
-        ${vitalCard('TTFB', v.ttfb)}
-      </div>
-
-      ${buildCategories(s, c, v)}
-
-      <div class="va-cta">
-        <h3>Wir beheben das für Sie</h3>
-        <p>Unser Team analysiert die Befunde und erstellt einen konkreten Maßnahmenplan für Ihren Shop.</p>
-        <a class="va-cta-btn" href="${CTA_URL}" target="_blank">Kostenloses Beratungsgespräch →</a>
-      </div>
-    `;
-
-      setTimeout(() => {
-        const ring = root.querySelector('#va-ring');
-        if (ring) ring.style.strokeDashoffset = 188.4 * (1 - total / 100);
-        root.querySelectorAll('.va-metric-bar[data-w]').forEach(bar => { bar.style.width = bar.dataset.w; });
-      }, 150);
-
-      root.querySelectorAll('.va-section-header').forEach(h => {
-        h.addEventListener('click', () => h.closest('.va-section').classList.toggle('open'));
-      });
-    }
-
-    function metricCard(label, mobile, desktop) {
-      const color = scoreColor(mobile);
-      return `
-      <div class="va-metric">
-        <div class="va-metric-top">
-          <span class="va-metric-label">${label}</span>
-          <div class="va-metric-scores">
-            <span class="va-metric-main" style="color:${color}">${mobile}</span>
-            <span class="va-metric-sub">mob · ${desktop} desk</span>
-          </div>
-        </div>
-        <div class="va-metric-bar-bg">
-          <div class="va-metric-bar" style="background:${color};width:0" data-w="${mobile}%"></div>
-        </div>
-      </div>`;
-    }
-
-    function vitalCard(label, value) {
-      return `<div class="va-vital"><div class="va-vital-label">${label}</div><div class="va-vital-value">${value}</div></div>`;
-    }
-
-    /* ── Events ── */
-    root.querySelector('#va-start').addEventListener('click', async () => {
-      const url = root.querySelector('#va-url').value.trim();
-      if (!url) { root.querySelector('#va-url').focus(); return; }
-
-      show('va-loading');
-
-      let apiDone = false, apiData = null, animDone = false;
-
-      animateLoading(() => {
-        animDone = true;
-        if (apiDone) { show('va-result'); buildResult(apiData); }
-      });
-
-      try {
-        const res = await fetch(`${API_BASE}/audit?url=${encodeURIComponent(url)}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        apiData = data;
-        apiDone = true;
-        if (animDone) { show('va-result'); buildResult(apiData); }
-      } catch (err) {
-        stopPhraseLoop();
-        show('va-result');
-        root.querySelector('#va-result').innerHTML = `
-        <div class="va-error">
-          <strong>Analyse fehlgeschlagen</strong><br>${err.message}<br>
-          <button class="va-retry" onclick="location.reload()">Erneut versuchen</button>
-        </div>`;
-      }
-    });
-
-    root.querySelector('#va-url').addEventListener('keydown', e => {
-      if (e.key === 'Enter') root.querySelector('#va-start').click();
-    });
-
-  })();
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>(function () {
+    const API = 'https://website-performance-uyti.onrender.com', CTA = 'https://v-lab.one/kontakt', RT = 'Rechtlicher Hinweis: Dieser Schnellcheck basiert auf automatisiert erhobenen und berechneten Daten. Einzelne Inhalte, Skripte, Rechtstexte, Cookie-Signale oder technische Merkmale können durch JavaScript, Cookie-Banner, Login-Bereiche, robots.txt, Crawler-Beschränkungen oder serverseitige Schutzmechanismen nicht oder nur unvollständig erfasst werden. Die Ergebnisse dienen ausschließlich der ersten technischen und redaktionellen Einschätzung. Sie sind nicht rechtsverbindlich und ersetzen keine rechtliche, datenschutzrechtliche oder technische Prüfung im Einzelfall. Für die Vollständigkeit, Aktualität und Richtigkeit der automatisiert ermittelten Ergebnisse wird keine Gewähr übernommen.'; const root = document.getElementById('vlab-audit-root'); root.innerHTML = `<div class="vpo" id="vpo"><div class="vps"></div><div class="vpl">PDF wird erstellt...</div></div><div class="vw"><div class="vs active" id="vi"><div class="vfs"><div class="vfw" id="wu"><input class="vf" type="url" id="vurl" placeholder="Ihre Website-URL eingeben"/><span class="vfe">Bitte eine gültige URL eingeben</span></div><div class="vfr vfg"><div class="vfw" id="wn"><input class="vf" type="text" id="vname" placeholder="Ihr Name *"/><span class="vfe">Name ist ein Pflichtfeld</span></div><input class="vf" type="text" id="vco" placeholder="Unternehmen (optional)"/></div><div class="vfr vfg"><div class="vfw" id="we"><input class="vf" type="email" id="vem" placeholder="E-Mail *"/><span class="vfe">Bitte eine gültige E-Mail-Adresse eingeben</span></div><input class="vf" type="tel" id="vph" placeholder="Telefon (optional)"/></div></div><div class="vbr"><button id="vst" class="button-7">Analyse starten</button></div><p class="vh">Schnellcheck für Website oder Shop.</p><div class="vp"><span>Websites & Shops</span><span>Diskret</span><span>Nächste Schritte</span></div></div><div class="vs" id="vld"><div class="vlo"><p class="vll" id="vll">Analyse wird gestartet...</p><ul class="vlc"><li id="lp"><span class="vd"></span>Performance</li><li id="la"><span class="vd"></span>Barrierefreiheit</li><li id="lm"><span class="vd"></span>Mobile Experience</li><li id="ls"><span class="vd"></span>SEO-Basis</li><li id="ll"><span class="vd"></span>Rechtliches & DSGVO</li><li id="lt"><span class="vd"></span>Cookies & Tracker</li></ul></div></div><div class="vs" id="vrs"></div></div>`; const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); const isUrl = v => { try { new URL(v.trim().startsWith('http') ? v.trim() : 'https://' + v.trim()); return true; } catch { return false; } }; const setErr = (id, on) => { const w = root.querySelector('#' + id); if (!w) return; w.classList.toggle('has-error', on); const f = w.querySelector('.vf'); if (f) f.classList.toggle('ve', on); }; const clearErr = () => ['wu', 'wn', 'we'].forEach(id => setErr(id, false)); const validate = () => { const u = root.querySelector('#vurl').value.trim(), n = root.querySelector('#vname').value.trim(), e = root.querySelector('#vem').value.trim(); let ok = true; if (!isUrl(u)) { setErr('wu', true); ok = false; } if (!n) { setErr('wn', true); ok = false; } if (!isEmail(e)) { setErr('we', true); ok = false; } if (!ok) { const f = root.querySelector('.has-error .vf'); if (f) f.focus(); } return ok; }; setTimeout(() => { [['vurl', 'wu'], ['vname', 'wn'], ['vem', 'we']].forEach(([id, w]) => { const el = root.querySelector('#' + id); if (el) el.addEventListener('input', () => setErr(w, false)); }); }, 0); const show = id => { root.querySelectorAll('.vs').forEach(s => s.classList.remove('active')); root.querySelector('#' + id).classList.add('active'); }; const sc = s => s >= 82 ? '#17a66a' : s >= 58 ? '#c98a16' : '#d94a3a'; const si = st => st === 'pass' ? '✓' : st === 'warn' ? '!' : '✕'; const cl = (v, a, b) => Math.max(a, Math.min(b, Math.round(v))); const CR = (st, nm, ds, ex) => `<div class="vch"><div class="vci ${st}">${si(st)}</div><div class="vcc"><p class="vcn">${nm}</p><p class="vcd">${ds}</p>${ex || ''}</div></div>`; const KG = items => `<div class="vkg">${items.map(([v, l, c]) => `<div class="vk"><div class="vkv"style="color:${c || '#0b0b0b'}">${v}</div><div class="vkl">${l}</div></div>`).join('')}</div>`; const SEC = (ti, score, kpis, ch) => `<div class="vsc"><div class="vsh"><span class="vst">${ti}</span><div class="vsr"><span class="vss" style="color:${sc(score)}">${score}/100</span><span class="vschev">▾</span></div></div><div class="vscb">${KG(kpis)}${ch}</div></div>`; const MC = (lb, score, sub) => { const c = sc(score); return `<div class="vmc"><span class="vml">${lb}</span><div class="vms"><span class="vmm" style="color:${c}">${score}</span><span class="vmsb">${sub}</span></div><div class="vmbb"><div class="vmb" style="background:${c};width:0" data-w="${score}%"></div></div></div>`; }; const VC = (lb, val, est) => `<div class="vvc"><div class="vvl">${lb}</div><div class="vvv">${val}</div>${est ? '<div class="vest">*</div>' : ''}</div>`; const TP = ts => { if (!ts?.length) return ''; const u = [...new Map(ts.map(t => [t.name, t])).values()]; return `<div class="vtl">${u.map(t => `<span class="vtp ${t.risk}">${t.name}<em style="font-weight:400;opacity:.7">${t.cat}</em></span>`).join('')}</div>`; }; const AE = ex => { if (!ex?.length) return ''; return `<div class="vie">${ex.map(s => `<div class="view"><img class="vit"src="${s}"alt=""loading="lazy"onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="vitb">–</div><div class="viu">${s.replace(/^https?:\/\/[^/]+/, '').substring(0, 35)}…</div></div>`).join('')}</div><p style="font-size:11px;color:var(--vm);margin:6px 0 0">Diese Bilder haben kein ALT-Attribut.</p>`; }; function IS(ch) { const l = ch.legal || {}, w = ch.widerruf || {}, u = String(ch._url || '').toLowerCase(), x = [ch.platform, ch.cms, ch.generator, ch.shopSystem, ch.ecommercePlatform, ch.cartUrl, ch.checkoutUrl, ch.type, ch.pageType].filter(Boolean).join(' ').toLowerCase(); return !!(ch.isShop || ch.shop || ch.ecommerce || ch.hasCart || ch.hasCheckout || ch.productCount > 0 || ch.cartLinks > 0 || ch.checkoutLinks > 0 || l.agb || l.widerruf || w.found || /shop|store|warenkorb|kasse|checkout|cart|product|produkt|fanshop/.test(u) || /shopify|woocommerce|magento|plentymarkets|shopware|commerce|ecommerce/.test(x)); } function RD(S, ch, vt) {
+      const noD = !vt.hasCruxData, lcpC = vt.lcp && vt.lcp !== '–' ? (String(vt.lcp).includes('*') ? '#c98a16' : sc(S.perf)) : '#74706a', t = normalizeConsentData(ch.trackers || {}), c = ch.legal || {}, w = ch.widerruf || {}, hr = t.highRiskTrackers || [], mr = t.mediumRiskTrackers || [], tc = t.trackingCookiesOnLoad || [], cmp = t.consentTools || [], shop = IS(ch); let wch = null; if (shop && w.found) { const ws = w.riskFlag ? 'fail' : w.has2026Keywords ? 'pass' : 'warn'; wch = { st: ws, nm: 'Widerruf 2026', ds: w.riskFlag ? `Risiko.${w.latestYear ? ' Jahr: ' + w.latestYear + '.' : ''} Neue EGBGB Anlage 1 ab 19.06.2026.` : w.has2026Keywords ? 'Aktuell.' : 'Bitte manuell prüfen.' }; } const trackerText = hr.length ? `${hr.length} Dienst${hr.length > 1 ? 'e' : ''}: ${hr.map(x => x.name).join(', ')}` : mr.length ? `${mr.length} Signal${mr.length > 1 ? 'e' : ''}: ${mr.map(x => x.name).join(', ')}` : 'OK.', robotsNote = !ch.robotsOk ? `<div class="vdis" style="border-left:3px solid var(--vy);padding-left:10px;margin-top:6px">Hinweis: Oft blockiert robots.txt spezifische Crawler — fehlende Pflichtseiten oder Formulare könnten existieren, sind aber nicht auffindbar. Bitte manuell prüfen.</div>` : ''; return [
+        { ti: 'Performance', score: S.perf, kpis: [[vt.lcp || '–', 'LCP' + (noD ? ' ~' : ''), lcpC], [vt.fcp || '–', 'FCP' + (noD ? ' ~' : ''), S.perf >= 82 ? '#17a66a' : '#c98a16'], [vt.ttfb || '–', 'TTFB', S.perf >= 82 ? '#17a66a' : '#c98a16'], [ch.scriptCount, 'Scripts', ch.scriptCount > 20 ? '#d94a3a' : ch.scriptCount > 10 ? '#c98a16' : '#17a66a'], [ch.hasWebP ? 'Ja' : 'Nein', 'WebP', ch.hasWebP ? '#17a66a' : '#c98a16'], [ch.responseSizeKb ? ch.responseSizeKb + ' KB' : '–', 'HTML', ch.responseSizeKb > 300 ? '#c98a16' : '#17a66a']], pre: noD ? `<p style="font-size:11px;color:var(--vm);padding:6px 0 4px;border-bottom:1px solid var(--vl);opacity:.7">Berechnete Näherungswerte anhand von verfügbaren technischen Daten.</p>` : '', items: [{ st: S.perf >= 82 ? 'pass' : S.perf >= 58 ? 'warn' : 'fail', nm: 'Performance', ds: S.perf >= 82 ? 'Solide.' : S.perf >= 58 ? 'Spürbare Auswirkungen möglich.' : 'Klare Probleme erkannt.' }, { st: ch.hasWebP ? 'pass' : 'warn', nm: 'Bildformate', ds: ch.hasWebP ? 'WebP/AVIF erkannt.' : 'Keine modernen Formate — erhöht LCP.' }, { st: ch.scriptCount > 20 ? 'fail' : ch.scriptCount > 10 ? 'warn' : 'pass', nm: 'Scripts', ds: `${ch.scriptCount} Scripts, ${ch.deferredScripts || 0} defer/async. ` + (ch.scriptCount > 20 ? 'Render-blockierend.' : ch.scriptCount > 10 ? 'Überprüfung empfohlen.' : 'OK.') }], pdf: [{ st: S.perf >= 82 ? 'pass' : S.perf >= 62 ? 'warn' : 'fail', nm: 'Performance', ds: vt.hasCruxData ? `LCP ${vt.lcp} FCP ${vt.fcp} TTFB ${vt.ttfb}` : `TTFB ${vt.ttfb || '-'}, LCP ca. ${vt.lcp || '-'}, FCP ca. ${vt.fcp || '-'}.` }, { st: ch.hasWebP ? 'pass' : 'warn', nm: 'Bildformate', ds: ch.hasWebP ? 'WebP/AVIF erkannt.' : 'Kein WebP. LCP-Potenzial.' }, { st: ch.scriptCount <= 10 ? 'pass' : ch.scriptCount <= 20 ? 'warn' : 'fail', nm: 'Scripts', ds: `${ch.scriptCount} Scripts, ${ch.deferredScripts || 0} defer/async. ${ch.scriptCount <= 10 ? 'OK.' : 'Scripts pruefen.'}` }, { st: ch.responseSizeKb > 700 ? 'warn' : 'pass', nm: 'HTML-Groesse', ds: `${ch.responseSizeKb || '-'} KB. ${ch.responseSizeKb > 700 ? 'Gross. Technisch pruefen.' : 'OK.'}` }] },
+        { ti: 'Barrierefreiheit', score: S.a11y, kpis: [[S.a11y + '/100', 'Score', sc(S.a11y)], [ch.htmlLang ? 'OK' : 'Fehlt', 'html lang', ch.htmlLang ? '#17a66a' : '#d94a3a'], [ch.noAlt ? (ch.imgWithoutAlt + ' Bilder') : 'OK', 'ALT', ch.noAlt ? '#d94a3a' : '#17a66a'], [ch.noLabel ? 'Fehler' : 'OK', 'Labels', ch.noLabel ? '#d94a3a' : '#17a66a']], items: [{ st: !ch.htmlLang ? 'fail' : 'pass', nm: 'html lang', ds: ch.htmlLang ? 'OK.' : 'Fehlt — WCAG 3.1.1.' }, { st: ch.noAlt ? 'fail' : 'pass', nm: 'ALT-Texte', ds: ch.noAlt ? `${ch.imgWithoutAlt} Bild${ch.imgWithoutAlt > 1 ? 'er' : ''} ohne ALT.` : 'OK.', ex: ch.noAlt && ch.imgWithoutAltExamples?.length ? AE(ch.imgWithoutAltExamples) : '' }, { st: ch.noLabel ? 'fail' : 'pass', nm: 'Labels', ds: ch.noLabel ? 'Felder ohne Labels.' : 'OK.' }, { st: ch.viewport ? 'pass' : 'fail', nm: 'Viewport', ds: ch.viewport ? 'OK.' : 'Fehlt.' }], pdf: [{ st: !ch.htmlLang ? 'fail' : 'pass', nm: 'html lang', ds: ch.htmlLang ? 'Gesetzt.' : 'Fehlt. WCAG 3.1.1.' }, { st: ch.noAlt ? 'fail' : 'pass', nm: 'ALT-Texte', ds: ch.noAlt ? `${ch.imgWithoutAlt} Bilder ohne ALT. WCAG-relevant.` : 'OK.' }, { st: ch.noLabel ? 'fail' : 'pass', nm: 'Formularlabels', ds: ch.noLabel ? 'Felder ohne Labels.' : 'OK.' }, { st: ch.viewport ? 'pass' : 'fail', nm: 'Viewport', ds: ch.viewport ? 'Gesetzt.' : 'Fehlt. Kritisch fuer Mobile.' }] },
+        { ti: 'Mobile Experience', score: S.mobile, kpis: [[S.mobile + '/100', 'Mobile Score', sc(S.mobile)], [ch.viewport ? 'OK' : 'Fehlt', 'Viewport', ch.viewport ? '#17a66a' : '#d94a3a'], [ch.scriptCount, 'Scripts', ch.scriptCount > 15 ? '#c98a16' : '#17a66a']], items: [{ st: ch.viewport ? 'pass' : 'fail', nm: 'Viewport', ds: ch.viewport ? 'OK.' : 'Fehlt.' }, { st: ch.scriptCount <= 15 ? 'pass' : 'warn', nm: 'Scripts', ds: `${ch.scriptCount}, ${ch.deferredScripts || 0} defer. ` + (ch.scriptCount <= 15 ? 'OK.' : 'Kann Mobile-Ladezeit erhöhen.') }, { st: !ch.responseSizeKb || ch.responseSizeKb <= 300 ? 'pass' : 'warn', nm: 'HTML-Größe', ds: `${ch.responseSizeKb || '–'} KB. ` + (!ch.responseSizeKb || ch.responseSizeKb <= 300 ? 'OK.' : 'Verlangsamt First Paint.') }], post: ch.viewport && ch.scriptCount <= 15 && (!ch.responseSizeKb || ch.responseSizeKb <= 300) ? `<p class="vsn">Alle messbaren Mobile-Checks unauffällig. Tap-Targets bitte manuell in Lighthouse prüfen.</p>` : '', pdf: [{ st: ch.viewport ? 'pass' : 'fail', nm: 'Viewport', ds: ch.viewport ? 'OK.' : 'Fehlt.' }, { st: ch.scriptCount <= 10 ? 'pass' : ch.scriptCount <= 20 ? 'warn' : 'fail', nm: 'Scripts', ds: `${ch.scriptCount}, ${ch.deferredScripts || 0} defer. ${ch.scriptCount <= 10 ? 'OK.' : 'Belastet Mobile.'}` }, { st: ch.responseSizeKb > 700 ? 'warn' : 'pass', nm: 'HTML', ds: `${ch.responseSizeKb || '-'} KB. ${ch.responseSizeKb > 700 ? 'Zu gross fuer Mobile.' : 'OK.'}` }] },
+        { ti: 'SEO & Sichtbarkeit', score: S.seo, kpis: [[S.seo + '/100', 'Score', sc(S.seo)], [ch.noMeta ? 'Fehlt' : 'OK', 'Meta Desc.', ch.noMeta ? '#d94a3a' : '#17a66a'], [ch.hasCanonical ? 'OK' : 'Fehlt', 'Canonical', ch.hasCanonical ? '#17a66a' : '#c98a16'], [ch.robotsOk ? 'OK' : '–', 'robots.txt', ch.robotsOk ? '#17a66a' : '#c98a16']], items: [{ st: ch.noMeta ? 'warn' : 'pass', nm: 'Meta Description', ds: ch.noMeta ? 'Fehlt — schwächt CTR.' : 'OK.' }, { st: ch.hasCanonical ? 'pass' : 'warn', nm: 'Canonical', ds: ch.hasCanonical ? 'OK.' : 'Fehlt.' }, { st: ch.robotsOk ? 'pass' : 'warn', nm: 'robots.txt', ds: ch.robotsOk ? 'OK.' : 'Fehlt.' }], pdf: [{ st: ch.noMeta ? 'warn' : 'pass', nm: 'Meta Description', ds: ch.noMeta ? 'Fehlt. Schwaecht CTR.' : 'OK.' }, { st: ch.hasCanonical ? 'pass' : 'warn', nm: 'Canonical', ds: ch.hasCanonical ? 'OK.' : 'Fehlt.' }, { st: ch.robotsOk ? 'pass' : 'warn', nm: 'robots.txt', ds: ch.robotsOk ? 'OK.' : 'Fehlt oder crawling wird blockiert.' }, { st: ch.noAlt ? 'warn' : 'pass', nm: 'Bild-SEO', ds: ch.noAlt ? `${ch.imgWithoutAlt} Bilder ohne ALT.` : 'OK.' }] },
+        { ti: 'Technik & Sicherheit', score: S.bp, kpis: [[ch.hasHttps ? 'Aktiv' : 'Fehlt', 'HTTPS', ch.hasHttps ? '#17a66a' : '#d94a3a'], [ch.hasFavicon ? 'OK' : 'Fehlt', 'Favicon', ch.hasFavicon ? '#17a66a' : '#c98a16'], [S.bp + '/100', 'Score', sc(S.bp)]], items: [{ st: ch.hasHttps ? 'pass' : 'fail', nm: 'HTTPS', ds: ch.hasHttps ? 'OK.' : 'Kein HTTPS.' }, { st: ch.hasFavicon ? 'pass' : 'warn', nm: 'Favicon', ds: ch.hasFavicon ? 'OK.' : 'Fehlt.' }], pdf: [{ st: ch.hasHttps ? 'pass' : 'fail', nm: 'HTTPS', ds: ch.hasHttps ? 'Aktiv.' : 'Fehlt. Kritisch.' }, { st: ch.hasFavicon ? 'pass' : 'warn', nm: 'Favicon', ds: ch.hasFavicon ? 'OK.' : 'Nicht erkannt.' }] },
+        { ti: 'Rechtliche Risiken & DSGVO', score: S.leg, kpis: [[c.impressum ? 'OK' : 'Fehlt', 'Impressum', c.impressum ? '#17a66a' : '#d94a3a'], [c.datenschutz ? 'OK' : 'Fehlt', 'Datenschutz', c.datenschutz ? '#17a66a' : '#d94a3a'], [shop ? 'Shop' : 'Website', 'Typ', shop ? '#17a66a' : '#74706a'], [t.hasConsentTool ? 'Ja' : 'Nein', 'CMP', t.hasConsentTool ? '#17a66a' : '#c98a16'], [hr.length || '0', 'Tracker', hr.length > 0 ? '#c98a16' : '#17a66a'], [tc.length || '0', 'Cookies vor Consent', tc.length > 0 ? '#d94a3a' : '#17a66a']], items: [{ st: c.impressum ? 'pass' : 'fail', nm: 'Impressum', ds: c.impressum ? 'OK.' : 'Nicht erkannt. Bitte manuell prüfen.' }, { st: c.datenschutz ? 'pass' : 'fail', nm: 'Datenschutz', ds: c.datenschutz ? 'OK.' : 'Nicht erkannt. Bitte manuell prüfen.' }, shop ? { st: c.agb ? 'pass' : 'warn', nm: 'AGB', ds: c.agb ? 'OK.' : 'Nicht erkannt.' } : { st: 'pass', nm: 'Shop-Pflichtangaben', ds: 'Kein eindeutiger Shop erkannt. AGB und Widerruf werden nicht bewertet.' }, shop ? { st: c.widerruf ? 'pass' : 'warn', nm: 'Widerruf', ds: c.widerruf ? 'OK.' : 'Fehlt. §312g.' } : null, shop ? wch : null, { st: t.hasConsentTool ? 'pass' : 'warn', nm: 'Consent-Management', ds: t.hasConsentTool ? 'CMP: ' + (cmp.length ? `${cmp.map(x => x.name).join(', ')}.` : '') : 'Kein CMP erkannt. Bei Tracking kritisch.', ex: TP(cmp) }, { st: t.consentStatus, nm: t.consentRiskLabel + ' Consent-Risiko', ds: t.consentSummary }, { st: hr.length > 0 ? 'warn' : 'pass', nm: 'Tracker-Signaturen', ds: trackerText, ex: TP(hr.concat(mr)) }, { st: tc.length > 0 ? 'fail' : 'pass', nm: 'Cookies beim Erstaufruf', ds: tc.length > 0 ? `${tc.length} Tracking-Cookie${tc.length > 1 ? 's' : ''} vor Einwilligung erkannt.` : 'Keine Cookies erkannt.', ex: tc.length > 0 ? `<div class="vtl">${tc.map(k => `<span class="vtp hoch">${k.split('=')[0]}</span>`).join('')}</div>` : '' }], post: robotsNote, pdf: [{ st: c.impressum ? 'pass' : 'fail', nm: 'Impressum', ds: c.impressum ? 'OK.' : 'Nicht erkannt. Abmahnrisiko.' }, { st: c.datenschutz ? 'pass' : 'fail', nm: 'Datenschutz', ds: c.datenschutz ? 'OK.' : 'Nicht erkannt. Bitte manuell prüfen.' }, shop ? { st: c.agb ? 'pass' : 'warn', nm: 'AGB', ds: c.agb ? 'OK.' : 'Nicht erkannt.' } : { st: 'pass', nm: 'Shop-Pflichtangaben', ds: 'Kein eindeutiger Shop erkannt. AGB und Widerruf werden nicht bewertet.' }, shop ? { st: c.widerruf ? 'pass' : 'warn', nm: 'Widerruf', ds: c.widerruf ? 'OK.' : 'Fehlt. Online-Shops pruefen.' } : null, shop ? wch : null, { st: t.hasConsentTool ? 'pass' : 'warn', nm: 'Consent-Tool', ds: t.hasConsentTool ? 'Erkannt.' + (cmp.length ? ' ' + cmp.map(x => x.name).join(', ') : '') : 'Nicht erkannt. Falls Tracking aktiv, kritisch.' }, { st: t.consentStatus, nm: t.consentRiskLabel + ' Consent-Risiko', ds: t.consentSummary }, { st: hr.length > 0 ? 'warn' : 'pass', nm: 'Tracker', ds: hr.length ? `${hr.length} Dienst${hr.length > 1 ? 'e' : ''}: ${hr.map(x => x.name).join(', ')}` : mr.length ? `${mr.length} Signal${mr.length > 1 ? 'e' : ''}: ${mr.map(x => x.name).join(', ')}` : 'OK.' }, { st: tc.length > 0 ? 'fail' : 'pass', nm: 'Cookies ohne Consent', ds: tc.length > 0 ? `${tc.length} Tracking-Cookie${tc.length > 1 ? 's' : ''} vor Einwilligung.` : 'OK.' }] }].map(x => (x.items = x.items.filter(Boolean), x.pdf = x.pdf.filter(Boolean), x));
+    } function RSEC(o) { return SEC(o.ti, o.score, o.kpis, (o.pre || '') + o.items.map(i => CR(i.st, i.nm, i.ds, i.ex)).join('') + (o.post || '')); } function genPDF(S, ch, vt, durl, meta) { const ov = root.querySelector('#vpo'), btn = root.querySelector('#vpdf'); ov.classList.add('active'); if (btn) { btn.disabled = true; btn.textContent = 'Erstellt...'; } try { const { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4' }), W = 210, H = 297, MX = 18, CW = W - MX * 2, MM = W / 2; let y = 22; const C = { b: [24, 24, 24], m: [105, 101, 96], l: [232, 226, 218], p: [255, 250, 243], g: [23, 166, 106], o: [201, 138, 22], r: [217, 74, 58], w: [255, 255, 255] }, col = s => s >= 82 ? C.g : s >= 62 ? C.o : C.r, st = s => s === 'pass' ? C.g : s === 'warn' ? C.o : C.r, soft = c => c.map(v => Math.round(v * .10 + 234)), tx = v => String(v ?? '').replace(/\s+/g, ' ').trim(), set = a => pdf.setTextColor(...a), fill = a => pdf.setFillColor(...a), draw = a => pdf.setDrawColor(...a), fs = (n, b = 0) => { pdf.setFont('helvetica', b ? 'bold' : 'normal'); pdf.setFontSize(n) }, pn = () => pdf.internal.getCurrentPageInfo().pageNumber, foot = () => { draw(C.l); pdf.line(MX, 284, W - MX, 284); fs(7); set(C.m); pdf.text('Automatisierter Schnellcheck - nicht rechtsverbindlich', MX, 291); pdf.text('Seite ' + pn(), W - MX, 291, { align: 'right' }); }, head = () => { fill(C.w); pdf.rect(0, 0, W, H, 'F'); fs(8); set(C.m); pdf.text('V-LAB Website Audit', MM, 11, { align: 'center' }); y = 24; }, np = () => { foot(); pdf.addPage(); head(); }, need = h => { if (y + h > 279) np(); }, ln = (t, x, w, sz = 8, lh = 4, c = C.m, al = 'left') => { fs(sz); set(c); const X = al === 'center' ? x + w / 2 : al === 'right' ? x + w : x; pdf.splitTextToSize(tx(t), w).forEach(l => { if (y > 276) np(); pdf.text(l, X, y, { align: al }); y += lh; }); }, pill = (x, yy, w, h, t, c) => { fill(soft(c)); pdf.roundedRect(x, yy, w, h, 3, 3, 'F'); fs(7); set(c); pdf.text(tx(t), x + w / 2, yy + h * .68, { align: 'center' }); }, card = (x, yy, w, h) => { fill(C.w); draw(C.l); pdf.roundedRect(x, yy, w, h, 3, 3, 'FD'); }, section = sec => { need(28); draw(C.l); pdf.line(MX, y, W - MX, y); y += 8; fs(12); set(C.b); pdf.text(sec.ti, MX, y); pill(W - MX - 30, y - 5, 30, 8, sec.score + '/100', col(sec.score)); y += 9; if (sec.kpis?.length) { ln(sec.kpis.map(k => k[1] + ': ' + k[0]).join('   '), MX, CW, 7, 3.7, C.m, 'center'); y += 2; } (sec.pdf || sec.items).filter(Boolean).slice(0, 8).forEach(it => { need(15); const c = st(it.st), ic = it.st === 'pass' ? 'OK' : it.st === 'warn' ? '!' : 'X', y0 = y; fill(soft(c)); pdf.roundedRect(MX, y0 - 3, 9, 5, 2, 2, 'F'); fs(6); set(c); pdf.text(ic, MX + 4.5, y0 + .7, { align: 'center' }); fs(8.4); set(C.b); pdf.text(tx(it.nm), MX + 13, y0); y += 4.2; ln(it.ds, MX + 13, CW - 13, 7.4, 3.5, C.m); y += 1; }); }; head(); fs(18); set(C.b); pdf.text('Website Audit Report', MM, y, { align: 'center' }); y += 8; ln([durl, meta?.name, meta?.company].filter(Boolean).join(' | '), MX, CW, 8, 4, C.m, 'center'); y += 5; fill(C.p); pdf.roundedRect(MX, y, CW, 42, 5, 5, 'F'); fs(36); set(col(S.total)); pdf.text(String(S.total), MM, y + 20, { align: 'center' }); fs(8); set(C.m); pdf.text('/100 Gesamtbewertung', MM, y + 29, { align: 'center' }); pill(MM - 23, y + 33, 46, 7, S.total >= 82 ? 'SOLIDE' : S.total >= 62 ? 'OPTIMIEREN' : 'HANDELN', col(S.total)); y += 53; fs(11); set(C.b); pdf.text('Scores', MM, y, { align: 'center' }); y += 6;[['Performance', S.perf], ['Barrierefreiheit', S.a11y], ['Mobile', S.mobile], ['SEO', S.seo], ['Technik', S.bp], ['Rechtliches', S.leg]].forEach((a, i) => { const gap = 5, w = (CW - gap * 2) / 3, x = MX + (i % 3) * (w + gap), yy = y + Math.floor(i / 3) * 18; card(x, yy, w, 13); fs(12); set(col(a[1])); pdf.text(String(a[1]), x + w / 2, yy + 6, { align: 'center' }); fs(6.2); set(C.m); pdf.text(a[0], x + w / 2, yy + 10.5, { align: 'center' }); }); y += 41; fs(11); set(C.b); pdf.text(vt.estimated ? 'Core Web Vitals - berechnet' : 'Core Web Vitals', MM, y, { align: 'center' }); y += 7;[['LCP', vt.lcp], ['FCP', vt.fcp], ['CLS', vt.cls], ['TTFB', vt.ttfb], ['INP', vt.inp]].forEach((a, i) => { const w = CW / 5, x = MX + i * w; card(x + 1, y, w - 2, 15); fs(6.2); set(C.m); pdf.text(a[0], x + w / 2, y + 5, { align: 'center' }); fs(9.5); set(C.b); pdf.text(String(a[1] || '-'), x + w / 2, y + 11.5, { align: 'center' }); }); y += 22; if (vt.estimated) { fill([253, 246, 232]); pdf.roundedRect(MX, y, CW, 13, 3, 3, 'F'); y += 5; ln('Berechnete Näherungswerte aus verfügbaren technischen Signalen. Für eine vollständige Labormessung empfehlen wir Lighthouse.', MX + 7, CW - 14, 7.2, 3.5, C.m, 'center'); y += 4; } RD(S, ch, vt).forEach(section); need(35); draw(C.l); pdf.line(MX, y, W - MX, y); y += 8; fs(10); set(C.b); pdf.text('Rechtlicher Hinweis', MM, y, { align: 'center' }); y += 7; ln(RT, MX, CW, 7.1, 3.5, C.m); foot(); pdf.save(`vlab-audit-${durl.replace(/[^a-zA-Z0-9-]/g, '_')}-${new Date().toISOString().slice(0, 10)}.pdf`); } catch (err) { console.error(err); alert('PDF-Fehler: ' + err.message); } finally { ov.classList.remove('active'); const b = root.querySelector('#vpdf'); if (b) { b.disabled = false; b.textContent = '↓ PDF'; } } } function normalizeConsentData(trackers) { const t = trackers && typeof trackers === 'object' ? JSON.parse(JSON.stringify(trackers)) : {}; const arr = v => Array.isArray(v) ? v : []; const lower = v => String(v || '').toLowerCase(); const detected = []; const add = (item) => { if (!item) return; const raw = typeof item === 'string' ? { name: item } : item; const txt = lower([raw.name, raw.cat, raw.category, raw.src, raw.url, raw.host, raw.domain].filter(Boolean).join(' ')); let name = raw.name || 'Unbekannter Dienst'; let cat = raw.cat || raw.category || 'Tracking'; let risk = raw.risk || 'mittel'; const patterns = [['Google Tag Manager', 'Tag Manager', 'hoch', ['googletagmanager.com', 'gtm.js', 'gtm-']], ['Google Analytics', 'Analytics', 'hoch', ['google-analytics.com', 'analytics.google.com', 'gtag/js', 'ga.js', '_ga', '_gid', '_gat']], ['Google Ads', 'Marketing', 'hoch', ['googleadservices.com', 'doubleclick.net', 'ads/ga-audiences', 'gcl_', '_gcl']], ['Meta Pixel', 'Marketing', 'hoch', ['connect.facebook.net', 'facebook.com/tr', '_fbp', '_fbc', 'fbq']], ['LinkedIn Insight Tag', 'Marketing', 'hoch', ['snap.licdn.com', 'linkedin.com/px', 'li_fat_id', 'bcookie']], ['TikTok Pixel', 'Marketing', 'hoch', ['analytics.tiktok.com', 'ttclid', '_ttp']], ['Pinterest Tag', 'Marketing', 'hoch', ['ct.pinterest.com', 'pinimg.com', '_pinterest']], ['Hotjar', 'Analytics', 'hoch', ['hotjar.com', '_hj']], ['Microsoft Clarity', 'Analytics', 'hoch', ['clarity.ms', '_clck', '_clsk']], ['Matomo', 'Analytics', 'mittel', ['matomo', 'piwik']], ['Cookiebot', 'Consent', 'niedrig', ['cookiebot', 'consent.cookiebot.com', 'cb-enabled']], ['Usercentrics', 'Consent', 'niedrig', ['usercentrics', 'usercentrics.eu', 'uc-corner', 'uc-banner']], ['Consentmanager', 'Consent', 'niedrig', ['consentmanager', 'consentmanager.net', 'cmp2', 'cmpbox']], ['OneTrust', 'Consent', 'niedrig', ['onetrust', 'optanon', 'cookielaw.org', 'ot-sdk']], ['Borlabs Cookie', 'Consent', 'niedrig', ['borlabs', 'borlabs-cookie']], ['CookieYes', 'Consent', 'niedrig', ['cookieyes', 'cookie-law-info']], ['Didomi', 'Consent', 'niedrig', ['didomi', 'didomi-notice']], ['Osano', 'Consent', 'niedrig', ['osano']], ['Complianz', 'Consent', 'niedrig', ['complianz', 'cmplz']], ['Real Cookie Banner', 'Consent', 'niedrig', ['real-cookie-banner', 'rcb-']], ['Klaro', 'Consent', 'niedrig', ['klaro']], ['Cookie Script', 'Consent', 'niedrig', ['cookie-script.com', 'cookiescript']], ['Termly', 'Consent', 'niedrig', ['termly.io', 'termly']], ['Iubenda', 'Consent', 'niedrig', ['iubenda']], ['Axeptio', 'Consent', 'niedrig', ['axeptio']], ['TRUENDO', 'Consent', 'niedrig', ['truendo']], ['Civic Cookie Control', 'Consent', 'niedrig', ['civicuk', 'cookie-control']]]; for (const [pn, pc, pr, keys] of patterns) { if (keys.some(k => txt.includes(k))) { name = pn; cat = pc; risk = pr; break; } } detected.push({ ...raw, name, cat, risk }); }; arr(t.detected).forEach(add); arr(t.scripts).forEach(add); arr(t.thirdPartyScripts).forEach(add); const cookieRaw = arr(t.trackingCookiesOnLoad).concat(arr(t.cookiesOnLoad || [])).concat(arr(t.cookies || [])); const trackingCookieNames = ['_ga', '_gid', '_gat', '_gcl', '_fbp', '_fbc', 'fr', 'IDE', 'ANID', 'NID', 'MUID', 'MR', 'CLID', '_hj', '_hjSession', '_hjFirstSeen', '_clck', '_clsk', 'ttclid', '_ttp', 'li_fat_id', 'bcookie', 'AnalyticsSyncHistory']; const trackingCookies = [...new Set(cookieRaw.map(c => String(c || '').trim()).filter(Boolean).filter(c => { const n = lower(c.split('=')[0]); return trackingCookieNames.some(k => n === lower(k) || n.startsWith(lower(k))); }))]; const dedup = new Map(); detected.forEach(d => { const key = lower((d.name || '') + '|' + (d.cat || '')); if (!dedup.has(key)) dedup.set(key, d); }); const clean = [...dedup.values()]; const consentTools = clean.filter(x => x.cat === 'Consent'); const highRisk = clean.filter(x => x.risk === 'hoch' && x.cat !== 'Consent'); const mediumRisk = clean.filter(x => x.risk === 'mittel' && x.cat !== 'Consent'); const hasConsentTool = Boolean(t.hasConsentTool || t.cmpDetected || consentTools.length > 0 || t.consentSignalInHtml); let riskLabel = 'Unauffällig', status = 'pass', summary = 'Keine Tracking-Cookies beim Erstaufruf.'; if (trackingCookies.length > 0) { status = 'fail'; riskLabel = 'Kritisch'; summary = `${trackingCookies.length} Tracking-Cookie${trackingCookies.length > 1 ? 's' : ''} beim Erstaufruf gesetzt — starkes Vorab-Tracking-Signal.`; } else if (highRisk.length > 0 && !hasConsentTool) { status = 'fail'; riskLabel = 'Kritisch'; summary = `${highRisk.length} Tracking-Dienst${highRisk.length > 1 ? 'e' : ''} ohne Consent-Tool. Bitte prüfen ob vor Einwilligung aktiv.`; } else if (highRisk.length > 0 && hasConsentTool) { status = 'warn'; riskLabel = 'Prüfen'; summary = `CMP + ${highRisk.length} Tracker. Vor Zustimmung blockiert?`; } else if (mediumRisk.length > 0 && !hasConsentTool) { status = 'warn'; riskLabel = 'Prüfen'; summary = `Tracking-/Analyse-Signale erkannt, aber kein Consent-Tool eindeutig gefunden. Bitte manuell im Browser prüfen.`; } else if (hasConsentTool) { status = 'pass'; riskLabel = 'Solide'; summary = 'Consent OK.'; } return { ...t, detected: clean, consentTools, highRiskTrackers: highRisk, mediumRiskTrackers: mediumRisk, trackingCookiesOnLoad: trackingCookies, hasConsentTool, cmpDetected: hasConsentTool, consentRiskLabel: riskLabel, consentStatus: status, consentSummary: summary, dsgvoRisk: status === 'fail', evidenceLevel: trackingCookies.length > 0 ? 'cookie' : highRisk.length > 0 ? 'script' : hasConsentTool ? 'cmp' : 'none' }; } function normalizeChecks(checks) { const c = checks && typeof checks === 'object' ? JSON.parse(JSON.stringify(checks)) : {}; c.trackers = normalizeConsentData(c.trackers || {}); return c; } function calcS(scores, checks, vitals) { const n = v => { v = String(v || '').replace(',', '.'); let m = v.match(/[0-9.]+/); return m ? +m[0] : 0 }, s = v => String(v || '').toLowerCase().includes('ms') ? n(v) / 1000 : n(v), m = v => String(v || '').toLowerCase().includes('ms') ? n(v) : n(v) * 1000, l = (v, g, p, b) => !v ? 60 : v <= g ? 100 : v <= p ? 100 - (v - g) * 50 / (p - g) : v <= b ? 50 - (v - p) * 35 / (b - p) : 15; let perf; if (vitals && (vitals.hasLighthouse || vitals.hasCruxData)) perf = +scores.performance?.mobile || 60; else { const js = checks.scriptCount <= 10 ? 95 : checks.scriptCount <= 20 ? 65 : checks.scriptCount <= 30 ? 40 : 20, wp = checks.hasWebP ? 95 : (checks.imgCount || 0) <= 3 ? 75 : 55, h = !checks.responseSizeKb ? 70 : checks.responseSizeKb <= 300 ? 90 : checks.responseSizeKb <= 700 ? 65 : checks.responseSizeKb <= 1200 ? 45 : 25; perf = Math.round(l(s(vitals.lcp), 2.5, 4, 6) * .38 + l(s(vitals.fcp), 1.8, 3, 5) * .15 + l(m(vitals.ttfb), 800, 1800, 3000) * .12 + js * .15 + wp * .10 + h * .10) } perf = cl(perf, 15, 100); let a11y = +scores.accessibility?.mobile || 70; if (checks.noAlt) a11y -= 16; if (checks.noLabel) a11y -= 12; if (!checks.htmlLang) a11y -= 8; if (!checks.viewport) a11y -= 12; a11y = cl(a11y, 30, 100); let mobile = Math.round(perf * .70 + (checks.viewport ? 18 : 0) + (checks.scriptCount <= 10 ? 8 : checks.scriptCount <= 20 ? 3 : -6) + (checks.hasWebP ? 4 : 0)); mobile = cl(mobile, 25, 100); let seo = +scores.seo?.mobile || 65; if (!checks.noMeta) seo += 8; else seo -= 10; if (checks.robotsOk) seo += 7; else seo -= 5; if (checks.hasCanonical) seo += 4; else seo -= 4; if (checks.htmlLang) seo += 3; if (checks.noAlt) seo -= 5; seo = cl(seo, 35, 100); let bp = +scores.bestPractices?.mobile || 75; if (checks.hasHttps) bp += 8; else bp -= 28; if (checks.hasFavicon) bp += 3; else bp -= 5; bp = cl(bp, 35, 100); let leg = +scores.legal?.mobile || 70; if (checks.legal?.impressum) leg += 10; else leg -= 12; if (checks.legal?.datenschutz) leg += 10; else leg -= 12; if (checks.trackers?.hasConsentTool) leg += 8; if (checks.trackers?.trackingCookiesOnLoad?.length) leg -= 18; if (IS(checks) && checks.legal && !checks.legal.widerruf) leg -= 4; leg = cl(leg, 35, 100); const total = cl(perf * .24 + a11y * .17 + mobile * .14 + seo * .17 + bp * .07 + leg * .21, 22, 100); return { perf, a11y, mobile, seo, bp, leg, total }; } function bPerf(S, ch, vt) { return RSEC(RD(S, ch, vt)[0]) } function bA11y(S, ch) { return RSEC(RD(S, ch, {})[1]) } function bMob(S, ch) { return RSEC(RD(S, ch, {})[2]) } function bSeo(S, ch) { return RSEC(RD(S, ch, {})[3]) } function bTech(S, ch) { return RSEC(RD(S, ch, {})[4]) } function bLegal(S, ch) { return RSEC(RD(S, ch, {})[5]) } function build(data, meta) { const scores = data.scores || {}, checks = normalizeChecks(data.checks || {}), vitals = data.vitals || {}; checks._url = data.url; const S = calcS(scores, checks, vitals); const bc = S.total >= 82 ? 'good' : S.total >= 58 ? 'ok' : 'bad'; const bt = S.total >= 82 ? 'Solide Basis' : S.total >= 58 ? 'Optimierungsbedarf' : 'Klarer Handlungsbedarf'; const tt = S.total >= 82 ? 'Gute Basis mit To-dos' : S.total >= 58 ? 'Spürbares Optimierungspotenzial' : 'Klarer Handlungsbedarf'; const du = data.url.replace(/^https?:\/\//, '').replace(/\/$/, ''); const dm = [meta.name, meta.company].filter(Boolean).join(' · '); const enc = btoa(unescape(encodeURIComponent(JSON.stringify({ url: data.url, scores, checks, vitals, meta })))); const qp = new URLSearchParams(); if (meta.company) qp.set('company', meta.company); qp.set('data', enc); const surl = location.href.split('?')[0] + '?' + qp.toString(); try { history.replaceState(null, '', '?' + qp.toString()); } catch { } const t = normalizeConsentData(checks.trackers || {}); const li = [!checks.legal?.impressum ? 'Impressum fehlt' : '', !checks.legal?.datenschutz ? 'Datenschutz fehlt' : '', (t.trackingCookiesOnLoad || []).length > 0 ? 'Tracking-Cookies vor Consent' : '', t.consentStatus === 'fail' ? 'Consent kritisch' : t.consentStatus === 'warn' ? 'Consent manuell prüfen' : ''].filter(Boolean); const lb = li.length ? `<div class="vlb"><strong>⚠ Rechtliche Risiken erkannt</strong> — ${li.join(' · ')}</div>` : ''; const isEst = vitals.estimated, unlocked = false; root.querySelector('#vrs').innerHTML = `<div class="vrh"><svg width="96" height="96" viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="rgba(11,11,11,.10)" stroke-width="6"/><circle id="vrg" cx="36" cy="36" r="30" fill="none" stroke="${sc(S.total)}" stroke-width="6" stroke-dasharray="188.4" stroke-dashoffset="188.4" stroke-linecap="round" transform="rotate(-90 36 36)" style="transition:stroke-dashoffset 1.2s ease"/><text x="36" y="41" text-anchor="middle" font-size="17" font-weight="800" fill="#0b0b0b">${S.total}</text></svg><div class="vrm"><h2 class="h2">${tt}</h2><p>${du}${dm ? ' · ' + dm : ''}</p><span class="vbg ${bc}">${bt}</span><div class="vsb"><input class="vsu" id="vsui" readonly value="${surl.replace(/"/g, '&quot;')}"/><button class="vsbn" id="vcp">Kopieren</button><div class="vpdfbar"><button class="vsbn dl" id="vpdf" style="display:none">↓ PDF herunterladen</button></div></div></div></div>${lb}<div class="vmg">${MC('Performance', S.perf, 'Score')}${MC('Barrierefreiheit', S.a11y, 'Score')}${MC('Mobile', S.mobile, 'Score')}${MC('SEO', S.seo, 'Score')}${MC('Rechtliches', S.leg, 'Score')}</div><div class="vvg">${VC('LCP', vitals.lcp || '–', isEst && vitals.lcp !== '–')}${VC('FCP', vitals.fcp || '–', isEst && vitals.fcp !== '–')}${VC('CLS', vitals.cls || '–', isEst && vitals.cls !== '–')}${VC('TTFB', vitals.ttfb || '–', false)}${VC('INP', vitals.inp || '–', false)}</div><div class="vgw"><div id="vgc" class="vgb">${bPerf(S, checks, vitals)}${bA11y(S, checks)}${bMob(S, checks)}${bSeo(S, checks)}${bTech(S, checks)}${bLegal(S, checks)}</div><div class="vgo" id="vgo"><p>Details freischalten</p><small>E-Mail eingeben für alle Details.</small><div class="vgr"><input class="vgi" type="text" id="vgi" placeholder="E-Mail eingeben "/><button class="vgbtn" id="vgbtn">Freischalten</button></div><p class="vgerr" id="vgerr" style="display:none">Bitte gültige E-Mail eingeben.</p></div></div><p class="paragraph 100 super-small" style="font-size:10px;width:100%;line-height:1.5;max-width:none;margin-top:10px;">${RT}</p><div class="vcta"><div><h3>Sie wollen von klaren Handlungsempfehlungen profititieren?</h3><p>Wir zeigen mit einem konkreten Plan und Empfehlungen, wie Sie Ihre Website oder Ihren Shop rechtskonform und performance-optimiert gestalten können.</p></div><a class="vcta-btn" href="${CTA}" target="_blank">Audit besprechen →</a></div>`; setTimeout(() => { const r = root.querySelector('#vrg'); if (r) r.style.strokeDashoffset = 188.4 * (1 - S.total / 100); root.querySelectorAll('.vmb[data-w]').forEach(b => { b.style.width = b.dataset.w; }); }, 150); root.querySelectorAll('.vsh').forEach(h => h.addEventListener('click', () => h.closest('.vsc').classList.toggle('open'))); const gBtn = root.querySelector('#vgbtn'), gIn = root.querySelector('#vgi'), gErr = root.querySelector('#vgerr'), gC = root.querySelector('#vgc'), gO = root.querySelector('#vgo'); if (unlocked) { gC.classList.remove('vgb'); if (gO) gO.remove(); } else { const unlock = () => { const v = gIn.value.trim(); const isAdm = ['fruchtallee'].includes(v.toLowerCase()); if (!isAdm && !isEmail(v)) { gErr.style.display = 'block'; return; } gErr.style.display = 'none'; if (!isAdm) { try { const form = document.querySelector('#audit-lead-notification-form'); if (form) { const sf = (n, val) => { const f = form.querySelector('[name="' + n + '"]'); if (f) f.value = val || ''; }; sf('audit_url', data.url); sf('name', meta.name); sf('company', meta.company); sf('email', v); sf('phone', meta.phone); sf('page_url', window.location.href); sf('submitted_at', new Date().toLocaleString('de-DE')); const s = form.querySelector('[type="submit"]'); if (s) s.click(); } } catch (e) { } } gC.classList.remove('vgb'); gO.remove(); const pdfBtn = root.querySelector('#vpdf'); if (pdfBtn) pdfBtn.style.display = 'block'; }; gBtn.addEventListener('click', unlock); gIn.addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); }); } root.querySelector('#vcp').addEventListener('click', () => { const b = root.querySelector('#vcp'); navigator.clipboard.writeText(root.querySelector('#vsui').value).then(() => { b.textContent = 'Kopiert'; setTimeout(() => b.textContent = 'Kopieren', 2200); }).catch(() => { root.querySelector('#vsui').select(); document.execCommand('copy'); b.textContent = 'Kopiert'; setTimeout(() => b.textContent = 'Kopieren', 2200); }); }); root.querySelector('#vpdf').addEventListener('click', () => genPDF(S, checks, vitals, du, meta)); } const CL = ['lp', 'la', 'lm', 'ls', 'll', 'lt'], CT = ['Performance...', 'Barrierefreiheit...', 'Mobile...', 'SEO wird analysiert...', 'Rechtliche Seiten werden geprüft...', 'Cookies & Tracker werden analysiert...']; function anim(done) { let i = 0; function n() { if (i > 0) { const p = root.querySelector('#' + CL[i - 1]); p.classList.remove('running'); p.classList.add('done'); } if (i < CL.length) { root.querySelector('#' + CL[i]).classList.add('running'); root.querySelector('#vll').textContent = CT[i]; i++; setTimeout(n, 1600 + Math.random() * 500); } else done(); } n(); } function fromURL() { const p = new URLSearchParams(window.location.search), e = p.get('data'); if (!e) return false; try { const d = JSON.parse(decodeURIComponent(escape(atob(e)))); if (!d?.scores) return false; show('vrs'); build({ url: d.url, scores: d.scores, checks: d.checks, vitals: d.vitals }, d.meta || {}); return true; } catch { return false; } } function submitAuditLeadToWebflow(meta, auditUrl) { try { const form = document.querySelector('#audit-lead-notification-form') || document.querySelector('form[data-name="Audit Lead Notification"]') || document.querySelector('form[name="Audit Lead Notification"]'); if (!form) { console.warn('Audit Lead Webflow Form nicht gefunden.'); return; } const setField = (name, value) => { const field = form.querySelector(`[name="${name}"]`); if (field) field.value = value || ''; }; setField('audit_url', auditUrl); setField('name', meta.name); setField('company', meta.company); setField('email', meta.email); setField('phone', meta.phone); setField('page_url', window.location.href); setField('submitted_at', new Date().toLocaleString('de-DE')); const submit = form.querySelector('[type="submit"]'); if (submit) { submit.click(); } else if (typeof form.requestSubmit === 'function') { form.requestSubmit(); } else { form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); } } catch (err) { console.warn('Webflow Lead Submission fehlgeschlagen:', err); } } root.querySelector('#vst').addEventListener('click', async function () { clearErr(); if (!validate()) return; const url = root.querySelector('#vurl').value.trim(); const cu = url.startsWith('http') ? url : 'https://' + url; const meta = { name: root.querySelector('#vname').value.trim(), company: root.querySelector('#vco').value.trim(), email: root.querySelector('#vem').value.trim(), phone: root.querySelector('#vph').value.trim() }; submitAuditLeadToWebflow(meta, cu); const btn = root.querySelector('#vst'); btn.disabled = true; btn.textContent = 'Analyse läuft…'; show('vld'); let done = false, dat = null, adone = false; anim(() => { adone = true; if (done) { show('vrs'); build(dat, meta); } }); try { const r = await fetch(`${API}/audit?url=${encodeURIComponent(cu)}`); const d = await r.json(); if (d.error) throw new Error(d.error); dat = d; done = true; if (adone) { show('vrs'); build(d, meta); } } catch (err) { show('vrs'); root.querySelector('#vrs').innerHTML = `<div class="verr"><strong>Fehler</strong><br>${err.message}<br><button class="vret" onclick="location.reload()">Nochmal versuchen</button></div>`; } finally { btn.disabled = false; btn.textContent = 'Analyse starten'; } }); root.querySelector('#vurl').addEventListener('keydown', e => { if (e.key === 'Enter') root.querySelector('#vst').click(); }); fromURL();
+  })();</script>
