@@ -9,13 +9,19 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
 const USER_AGENT = 'Mozilla/5.0 (compatible; V-LAB-Audit/1.0; +https://v-lab.one)';
-const REQUEST_TIMEOUT_MS = 12000;
+const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 12000);
+const PAGESPEED_TIMEOUT_MS = Number(process.env.PAGESPEED_TIMEOUT_MS || 60000);
 const MAX_LEGAL_LINKS_TO_VERIFY = 8;
+
+const PAGESPEED_API_KEY = process.env.PAGESPEED_API_KEY || '';
+const PAGESPEED_STRATEGY = process.env.PAGESPEED_STRATEGY || 'mobile';
+const PAGESPEED_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
 
 app.get('/health', (req, res) => {
   res.json({
     ok: true,
     service: 'vlab-audit-api',
+    mode: 'pagespeed-lighthouse',
     time: new Date().toISOString()
   });
 });
@@ -52,33 +58,233 @@ function sameHostOrRelative(url, baseUrl) {
   }
 }
 
-async function fetchText(url, options = {}) {
+async function fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeout || REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'user-agent': USER_AGENT,
-        accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'accept-language': 'de-DE,de;q=0.9,en;q=0.8'
-      }
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal
     });
-
-    const text = await response.text();
-
-    return {
-      ok: response.ok,
-      status: response.status,
-      url: response.url || url,
-      headers: response.headers,
-      text
-    };
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchText(url, options = {}) {
+  const response = await fetchWithTimeout(url, {
+    timeout: options.timeout || REQUEST_TIMEOUT_MS,
+    redirect: 'follow',
+    headers: {
+      'user-agent': USER_AGENT,
+      accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'accept-language': 'de-DE,de;q=0.9,en;q=0.8'
+    }
+  });
+
+  const text = await response.text();
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    url: response.url || url,
+    headers: response.headers,
+    text
+  };
+}
+
+function msToDisplay(ms) {
+  if (ms === null || ms === undefined || Number.isNaN(Number(ms))) return '-';
+
+  const value = Number(ms);
+
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)} s`;
+  }
+
+  return `${Math.round(value)} ms`;
+}
+
+function scoreToInt(score) {
+  if (typeof score !== 'number') return 0;
+  return Math.max(0, Math.min(100, Math.round(score * 100)));
+}
+
+function getAuditNumber(audits, key) {
+  const audit = audits && audits[key];
+  if (!audit) return null;
+
+  if (typeof audit.numericValue === 'number') {
+    return audit.numericValue;
+  }
+
+  return null;
+}
+
+function getAuditDisplay(audits, key) {
+  const audit = audits && audits[key];
+  if (!audit) return '-';
+
+  return audit.displayValue || msToDisplay(audit.numericValue);
+}
+
+function getCruxMetric(json, key) {
+  return (
+    json?.loadingExperience?.metrics?.[key] ||
+    json?.originLoadingExperience?.metrics?.[key] ||
+    null
+  );
+}
+
+async function runPageSpeed(url) {
+  const requestUrl = new URL(PAGESPEED_ENDPOINT);
+
+  requestUrl.searchParams.set('url', url);
+  requestUrl.searchParams.set('strategy', PAGESPEED_STRATEGY);
+  requestUrl.searchParams.set('locale', 'de_DE');
+
+  requestUrl.searchParams.append('category', 'performance');
+  requestUrl.searchParams.append('category', 'accessibility');
+  requestUrl.searchParams.append('category', 'best-practices');
+  requestUrl.searchParams.append('category', 'seo');
+
+  if (PAGESPEED_API_KEY) {
+    requestUrl.searchParams.set('key', PAGESPEED_API_KEY);
+  }
+
+  const response = await fetchWithTimeout(requestUrl.toString(), {
+    timeout: PAGESPEED_TIMEOUT_MS,
+    headers: {
+      accept: 'application/json'
+    }
+  });
+
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = json?.error?.message || `PageSpeed API Fehler ${response.status}`;
+    throw new Error(message);
+  }
+
+  const lighthouse = json.lighthouseResult || {};
+  const audits = lighthouse.audits || {};
+  const categories = lighthouse.categories || {};
+
+  const cruxInp = getCruxMetric(json, 'INTERACTION_TO_NEXT_PAINT');
+  const cruxLcp = getCruxMetric(json, 'LARGEST_CONTENTFUL_PAINT_MS');
+  const cruxFcp = getCruxMetric(json, 'FIRST_CONTENTFUL_PAINT_MS');
+  const cruxCls = getCruxMetric(json, 'CUMULATIVE_LAYOUT_SHIFT_SCORE');
+
+  const tbt = getAuditNumber(audits, 'total-blocking-time');
+
+  const inpValue =
+    cruxInp?.percentile !== undefined
+      ? `${Math.round(cruxInp.percentile)} ms`
+      : tbt !== null
+        ? `${Math.round(tbt)} ms*`
+        : '-';
+
+  const inpSource =
+    cruxInp?.percentile !== undefined
+      ? 'crux-inp'
+      : tbt !== null
+        ? 'lighthouse-tbt-proxy'
+        : 'not-available';
+
+  const lighthouseTtfb = getAuditNumber(audits, 'server-response-time');
+  const lighthouseLcp = getAuditNumber(audits, 'largest-contentful-paint');
+  const lighthouseFcp = getAuditNumber(audits, 'first-contentful-paint');
+  const lighthouseCls = getAuditNumber(audits, 'cumulative-layout-shift');
+
+  return {
+    id: json.id || url,
+    finalUrl: lighthouse.finalUrl || json.id || url,
+    lighthouseVersion: lighthouse.lighthouseVersion || null,
+    fetchTime: lighthouse.fetchTime || null,
+    strategy: PAGESPEED_STRATEGY,
+
+    scores: {
+      performance: {
+        mobile: scoreToInt(categories.performance?.score)
+      },
+      accessibility: {
+        mobile: scoreToInt(categories.accessibility?.score)
+      },
+      seo: {
+        mobile: scoreToInt(categories.seo?.score)
+      },
+      bestPractices: {
+        mobile: scoreToInt(categories['best-practices']?.score)
+      },
+      legal: {
+        mobile: 0
+      }
+    },
+
+    vitals: {
+      estimated: false,
+      hasCruxData: Boolean(json.loadingExperience?.metrics || json.originLoadingExperience?.metrics),
+      hasLighthouse: true,
+
+      ttfb:
+        lighthouseTtfb !== null
+          ? msToDisplay(lighthouseTtfb)
+          : '-',
+
+      lcp:
+        lighthouseLcp !== null
+          ? msToDisplay(lighthouseLcp)
+          : cruxLcp?.percentile
+            ? msToDisplay(cruxLcp.percentile)
+            : getAuditDisplay(audits, 'largest-contentful-paint'),
+
+      fcp:
+        lighthouseFcp !== null
+          ? msToDisplay(lighthouseFcp)
+          : cruxFcp?.percentile
+            ? msToDisplay(cruxFcp.percentile)
+            : getAuditDisplay(audits, 'first-contentful-paint'),
+
+      cls:
+        lighthouseCls !== null
+          ? String(Number(lighthouseCls).toFixed(3)).replace(/\.000$/, '')
+          : cruxCls?.percentile !== undefined
+            ? String((cruxCls.percentile / 100).toFixed(3))
+            : '-',
+
+      inp: inpValue,
+      inpSource,
+
+      speedIndex: getAuditDisplay(audits, 'speed-index'),
+      tbt: tbt !== null ? `${Math.round(tbt)} ms` : '-',
+      source: 'pagespeed-lighthouse'
+    },
+
+    lighthouse: {
+      requestedUrl: lighthouse.requestedUrl || url,
+      finalUrl: lighthouse.finalUrl || null,
+      lighthouseVersion: lighthouse.lighthouseVersion || null,
+      runWarnings: lighthouse.runWarnings || [],
+      runtimeError: lighthouse.runtimeError || null,
+      audits: {
+        firstContentfulPaint: audits['first-contentful-paint'] || null,
+        largestContentfulPaint: audits['largest-contentful-paint'] || null,
+        cumulativeLayoutShift: audits['cumulative-layout-shift'] || null,
+        totalBlockingTime: audits['total-blocking-time'] || null,
+        speedIndex: audits['speed-index'] || null,
+        serverResponseTime: audits['server-response-time'] || null,
+        interactive: audits.interactive || null
+      }
+    },
+
+    crux: {
+      pageOverall: json.loadingExperience?.overall_category || null,
+      originOverall: json.originLoadingExperience?.overall_category || null,
+      inpCategory: cruxInp?.category || null,
+      inpPercentile: cruxInp?.percentile || null
+    }
+  };
 }
 
 function findLinksByTerms($, baseUrl, terms) {
@@ -213,7 +419,10 @@ async function verifyWiderrufTarget(candidate, baseUrl) {
   const hrefText = safeLower(candidate.href);
   const combined = `${linkText} ${hrefText}`;
 
-  const strongLinkHit = WIDERRUF_STRONG_SIGNALS.some(term => combined.includes(term));
+  const strongLinkHit = WIDERRUF_STRONG_SIGNALS.some(term =>
+    combined.includes(term)
+  );
+
   const buttonHit = [
     'widerruf einreichen',
     'vertrag widerrufen',
@@ -316,6 +525,7 @@ async function detectWiderruf($, baseUrl) {
 function detectShop($, baseUrl, legal) {
   const url = safeLower(baseUrl);
   const body = safeLower($('body').text());
+
   const links = $('a[href]')
     .map((_, el) => `${$(el).text()} ${$(el).attr('href')}`)
     .get()
@@ -338,6 +548,7 @@ async function getRobotsOk(baseUrl) {
   try {
     const u = new URL(baseUrl);
     const robotsUrl = `${u.protocol}//${u.host}/robots.txt`;
+
     const result = await fetchText(robotsUrl, {
       timeout: 6000
     });
@@ -401,22 +612,34 @@ function detectTrackers($, html) {
   };
 }
 
-function getBasicScores() {
+function calculateLegalScore(checks) {
+  let score = 70;
+
+  checks.legal?.impressum ? score += 10 : score -= 12;
+  checks.legal?.datenschutz ? score += 10 : score -= 12;
+  checks.trackers?.hasConsentTool ? score += 8 : score -= 4;
+
+  if (checks.trackers?.trackingCookiesOnLoad?.length) {
+    score -= 18;
+  }
+
+  if (checks.isShop && checks.legal && !checks.legal.widerruf) {
+    score -= 4;
+  }
+
+  return Math.max(35, Math.min(100, Math.round(score)));
+}
+
+function mergeScores(pageSpeedScores, checks) {
+  const legalScore = calculateLegalScore(checks);
+
   return {
-    performance: {
-      mobile: 0
-    },
-    accessibility: {
-      mobile: 0
-    },
-    seo: {
-      mobile: 0
-    },
-    bestPractices: {
-      mobile: 0
-    },
+    performance: pageSpeedScores.performance || { mobile: 0 },
+    accessibility: pageSpeedScores.accessibility || { mobile: 0 },
+    seo: pageSpeedScores.seo || { mobile: 0 },
+    bestPractices: pageSpeedScores.bestPractices || { mobile: 0 },
     legal: {
-      mobile: 0
+      mobile: legalScore
     }
   };
 }
@@ -426,7 +649,10 @@ app.get('/audit', async (req, res) => {
     const inputUrl = normalizeUrl(req.query.url);
     const started = Date.now();
 
-    const response = await fetchText(inputUrl);
+    const [response, pageSpeed] = await Promise.all([
+      fetchText(inputUrl),
+      runPageSpeed(inputUrl)
+    ]);
 
     if (!response.ok) {
       return res.status(response.status).json({
@@ -434,7 +660,7 @@ app.get('/audit', async (req, res) => {
       });
     }
 
-    const finalUrl = response.url || inputUrl;
+    const finalUrl = pageSpeed.finalUrl || response.url || inputUrl;
     const html = response.text || '';
     const $ = cheerio.load(html);
 
@@ -474,10 +700,13 @@ app.get('/audit', async (req, res) => {
 
     const checks = {
       _url: finalUrl,
+
       htmlLang: Boolean($('html').attr('lang')),
+
       noAlt: imgWithoutAlt > 0,
       imgWithoutAlt,
       imgWithoutAltExamples,
+
       noLabel: $('input,textarea,select').filter((_, el) => {
         const id = $(el).attr('id');
         const type = safeLower($(el).attr('type'));
@@ -488,42 +717,61 @@ app.get('/audit', async (req, res) => {
 
         return $(el).closest('label').length === 0;
       }).length > 0,
+
       viewport: $('meta[name="viewport"]').length > 0,
       noMeta: !$('meta[name="description"]').attr('content'),
       hasCanonical: $('link[rel="canonical"]').length > 0,
       robotsOk,
+
       scriptCount: scripts,
       deferredScripts,
+      blockingScripts: Math.max(0, scripts - deferredScripts),
+      stylesheetCount: $('link[rel="stylesheet"]').length,
+
       hasWebP: /\.webp|\.avif/i.test(html),
       imgCount: $('img').length,
+      lazyImgCount: $('img[loading="lazy"]').length,
+      eagerImgCount: $('img:not([loading="lazy"])').length,
+      imagesWithoutDimensions: $('img').filter((_, el) => {
+        return !$(el).attr('width') || !$(el).attr('height');
+      }).length,
+
       responseSizeKb,
+
       hasHttps: finalUrl.startsWith('https://'),
       hasFavicon: $('link[rel*="icon"]').length > 0,
+
       legal,
+      legalLinks,
       widerruf,
-      trackers
+      trackers,
+
+      isShop: false,
+
+      lighthouse: pageSpeed.lighthouse,
+
+      pageSpeed: {
+        id: pageSpeed.id,
+        strategy: pageSpeed.strategy,
+        lighthouseVersion: pageSpeed.lighthouseVersion,
+        fetchTime: pageSpeed.fetchTime,
+        crux: pageSpeed.crux
+      }
     };
 
     checks.isShop = detectShop($, finalUrl, legal);
 
-    const ttfb = Date.now() - started;
-
-    const vitals = {
-      estimated: true,
-      hasCruxData: false,
-      hasLighthouse: false,
-      ttfb: `${ttfb} ms`,
-      lcp: checks.responseSizeKb > 700 ? '5.0 s*' : checks.imgCount > 20 ? '4.2 s*' : '3.0 s*',
-      fcp: checks.responseSizeKb > 700 ? '2.6 s*' : '1.4 s*',
-      cls: '-',
-      inp: '-'
-    };
+    const scores = mergeScores(pageSpeed.scores, checks);
+    const durationMs = Date.now() - started;
 
     res.json({
       url: finalUrl,
-      scores: getBasicScores(checks, vitals),
+      scores,
       checks,
-      vitals
+      vitals: {
+        ...pageSpeed.vitals,
+        apiDurationMs: durationMs
+      }
     });
   } catch (err) {
     console.error('GET /audit failed:', err);
