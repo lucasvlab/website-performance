@@ -717,7 +717,7 @@ function detectTrackers($, html) {
   });
 
   const signatures = [
-    ['Google Tag Manager', 'Tag Manager', 'hoch', ['googletagmanager.com', 'gtm.js', 'gtm-']],
+    ['Google Tag Manager', 'Tag Manager', 'mittel', ['googletagmanager.com', 'gtm.js', 'gtm-']],
     ['Google Analytics', 'Analytics', 'hoch', ['google-analytics.com', 'analytics.google.com', 'gtag/js', 'ga.js']],
     ['Google Ads', 'Marketing', 'hoch', ['googleadservices.com', 'doubleclick.net', 'ads/ga-audiences']],
     ['Meta Pixel', 'Marketing', 'hoch', ['connect.facebook.net', 'facebook.com/tr', 'fbq']],
