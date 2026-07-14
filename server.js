@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     service: 'vlab-audit-api',
-    mode: 'pagespeed-lighthouse-strict',
+    mode: 'pagespeed-lighthouse-strict-stable',
     time: new Date().toISOString()
   });
 });
@@ -1017,6 +1017,92 @@ function fallbackVitals() {
   };
 }
 
+function buildUnavailableChecks(finalUrl, response, pageSpeedResult, notices) {
+  return {
+    _url: finalUrl,
+
+    htmlFetchOk: false,
+    htmlFetchStatus: response.status || 0,
+    htmlFetchReason: response.reason || null,
+    htmlFetchError: response.error || null,
+    partialAudit: true,
+    auditWarnings: notices,
+
+    htmlLang: false,
+
+    noAlt: false,
+    imgWithoutAlt: 0,
+    imgWithoutAltExamples: [],
+
+    noLabel: false,
+    viewport: false,
+    noMeta: false,
+    hasCanonical: false,
+    robotsOk: false,
+
+    scriptCount: 0,
+    deferredScripts: 0,
+    blockingScripts: 0,
+    stylesheetCount: 0,
+
+    hasWebP: false,
+    imgCount: 0,
+    lazyImgCount: 0,
+    eagerImgCount: 0,
+    imagesWithoutDimensions: 0,
+
+    responseSizeKb: 0,
+
+    hasHttps: finalUrl.startsWith('https://'),
+    hasFavicon: false,
+
+    legal: {
+      impressum: false,
+      datenschutz: false,
+      agb: false,
+      widerruf: false
+    },
+
+    legalLinks: {
+      impressum: [],
+      datenschutz: [],
+      agb: []
+    },
+
+    widerruf: {
+      found: false,
+      url: null,
+      linkText: null,
+      confidence: 'not-checked',
+      has2026Keywords: false,
+      riskFlag: false,
+      source: 'html-fetch-unavailable',
+      candidates: []
+    },
+
+    trackers: {
+      detected: [],
+      scripts: [],
+      thirdPartyScripts: [],
+      hasConsentTool: false,
+      cmpDetected: false
+    },
+
+    isShop: false,
+
+    lighthouse: null,
+
+    pageSpeed: {
+      id: finalUrl,
+      strategy: PAGESPEED_STRATEGY,
+      lighthouseVersion: null,
+      fetchTime: null,
+      crux: null,
+      error: pageSpeedResult.error?.message || null
+    }
+  };
+}
+
 app.get('/audit', async (req, res) => {
   const started = Date.now();
 
@@ -1041,24 +1127,29 @@ app.get('/audit', async (req, res) => {
     if (pageSpeedNotice) notices.push(pageSpeedNotice);
 
     if (!response.ok && !pageSpeedResult.ok) {
+      const finalUrl = response.url || inputUrl;
+      const extraNotice = buildNotice(
+        'limited-fallback-report',
+        'Eingeschränkte Analyse',
+        'Die Website konnte gerade nicht vollständig geprüft werden. Wahrscheinlich blockiert die Seite automatisierte Serverabrufe oder Lighthouse war temporär nicht verfügbar. Der Report zeigt deshalb nur eine eingeschränkte technische Einschätzung. Bitte später erneut testen oder eine konkrete Unterseite prüfen.'
+      );
+
+      const allNotices = [...notices, extraNotice];
+      const checks = buildUnavailableChecks(finalUrl, response, pageSpeedResult, allNotices);
+      const scores = fallbackScoresFromHtml(checks);
+      const durationMs = Date.now() - started;
+
       return res.status(200).json({
-        error: 'Analyse nicht abgeschlossen',
-        message: 'Die Website konnte gerade nicht zuverlässig geprüft werden. Bitte versuche es später erneut oder teste eine konkrete Unterseite.',
-        userHint: notices.map(notice => notice.text).join(' '),
-        retryRecommended: true,
-        diagnostics: {
-          htmlFetch: {
-            ok: response.ok,
-            status: response.status,
-            reason: response.reason,
-            error: response.error || null
-          },
-          pageSpeed: {
-            ok: false,
-            error: pageSpeedResult.error?.message || 'PageSpeed fehlgeschlagen'
-          }
+        url: finalUrl,
+        scores,
+        checks,
+        vitals: {
+          ...fallbackVitals(),
+          apiDurationMs: durationMs
         },
-        notices
+        notices: allNotices,
+        partialAudit: true,
+        retryRecommended: true
       });
     }
 
@@ -1216,7 +1307,8 @@ app.get('/audit', async (req, res) => {
         'html-fetch-rate-limited',
         'pagespeed-timeout',
         'pagespeed-rate-limit',
-        'pagespeed-failed'
+        'pagespeed-failed',
+        'limited-fallback-report'
       ].includes(notice.type))
     });
   } catch (err) {
@@ -1228,12 +1320,40 @@ app.get('/audit', async (req, res) => {
       'Die Analyse ist unerwartet fehlgeschlagen. Bitte versuche es später erneut oder teste eine konkrete Unterseite.'
     );
 
+    const finalUrl = req.query.url ? normalizeUrl(req.query.url) : '';
+    const fallbackResponse = {
+      ok: false,
+      status: 0,
+      url: finalUrl,
+      reason: 'unexpected-error',
+      error: err.message || 'Analyse fehlgeschlagen.'
+    };
+
+    const fakePageSpeedResult = {
+      ok: false,
+      error: err
+    };
+
+    const checks = finalUrl
+      ? buildUnavailableChecks(finalUrl, fallbackResponse, fakePageSpeedResult, [notice])
+      : null;
+
     res.status(200).json({
-      error: 'Analyse nicht abgeschlossen',
+      error: checks ? undefined : 'Analyse nicht abgeschlossen',
       message: err.message || 'Analyse fehlgeschlagen.',
       userHint: notice.text,
       retryRecommended: true,
-      notices: [notice]
+      notices: [notice],
+      ...(checks ? {
+        url: finalUrl,
+        scores: fallbackScoresFromHtml(checks),
+        checks,
+        vitals: {
+          ...fallbackVitals(),
+          apiDurationMs: Date.now() - started
+        },
+        partialAudit: true
+      } : {})
     });
   }
 });
