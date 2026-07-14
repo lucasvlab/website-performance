@@ -8,7 +8,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
-const USER_AGENT = process.env.USER_AGENT || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
+const USER_AGENT =
+  process.env.USER_AGENT ||
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
+
 const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 25000);
 const PAGESPEED_TIMEOUT_MS = Number(process.env.PAGESPEED_TIMEOUT_MS || 90000);
 const FETCH_RETRIES = Number(process.env.FETCH_RETRIES || 1);
@@ -22,14 +25,18 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     service: 'vlab-audit-api',
-    mode: 'pagespeed-lighthouse-strict-stable',
+    mode: 'pagespeed-lighthouse-aligned-stable',
     time: new Date().toISOString()
   });
 });
 
 function normalizeUrl(input) {
   const raw = String(input || '').trim();
-  if (!raw) throw new Error('Keine URL übergeben.');
+
+  if (!raw) {
+    throw new Error('Keine URL übergeben.');
+  }
+
   return raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
 }
 
@@ -53,6 +60,7 @@ function sameHostOrRelative(url, baseUrl) {
   try {
     const a = new URL(url);
     const b = new URL(baseUrl);
+
     return a.hostname.replace(/^www\./, '') === b.hostname.replace(/^www\./, '');
   } catch {
     return false;
@@ -243,11 +251,13 @@ function msToDisplay(ms) {
 
 function scoreToInt(score) {
   if (typeof score !== 'number') return 0;
+
   return Math.max(0, Math.min(100, Math.round(score * 100)));
 }
 
 function getAuditNumber(audits, key) {
   const audit = audits && audits[key];
+
   if (!audit) return null;
 
   if (typeof audit.numericValue === 'number') {
@@ -259,6 +269,7 @@ function getAuditNumber(audits, key) {
 
 function getAuditDisplay(audits, key) {
   const audit = audits && audits[key];
+
   if (!audit) return '-';
 
   return audit.displayValue || msToDisplay(audit.numericValue);
@@ -754,164 +765,138 @@ function calculatePerformanceScore(pageSpeedScores = {}, checks = {}) {
     score = 68;
   }
 
-  if (checks.scriptCount > 20) score -= 8;
-  if (checks.scriptCount > 35) score -= 8;
-  if (!checks.hasWebP && checks.imgCount > 3) score -= 8;
-  if (checks.responseSizeKb > 700) score -= 8;
-  if (checks.responseSizeKb > 1200) score -= 8;
+  if (!checks.htmlFetchOk && checks.partialAudit) {
+    score = Math.min(score, 79);
+  }
 
   return clamp(score, 15, 100);
 }
 
 function calculateAccessibilityScore(pageSpeedScores = {}, checks = {}) {
-  let score = Number(pageSpeedScores.accessibility?.mobile || 70);
-  let issues = 0;
+  let score = Number(pageSpeedScores.accessibility?.mobile || 0);
+
+  if (!score) {
+    score = 70;
+  }
+
+  let failedLocalAudits = 0;
 
   if (!checks.htmlFetchOk && checks.partialAudit) {
-    score = Math.min(score || 62, 62);
-    issues += 1;
+    score = Math.min(score, 79);
+    failedLocalAudits += 1;
   }
 
   if (!checks.htmlLang) {
-    score -= 14;
-    issues += 1;
-  } else {
-    score += 2;
+    failedLocalAudits += 1;
+    score = Math.min(score, 89);
   }
 
   if (checks.noAlt) {
     const missingAlt = Number(checks.imgWithoutAlt || 0);
-    score -= Math.min(34, 18 + Math.min(16, missingAlt));
-    issues += 1;
+    failedLocalAudits += 1;
+
+    score = Math.min(score, 89);
 
     if (missingAlt >= 5) {
-      score = Math.min(score, 74);
+      score = Math.min(score, 79);
     }
 
     if (missingAlt >= 15) {
-      score = Math.min(score, 62);
+      score = Math.min(score, 69);
     }
   }
 
   if (checks.noLabel) {
-    score -= 22;
-    issues += 1;
-    score = Math.min(score, 76);
+    failedLocalAudits += 1;
+    score = Math.min(score, 79);
   }
 
-  if (!checks.viewport) {
-    score -= 16;
-    issues += 1;
-    score = Math.min(score, 78);
+  if (checks.imagesWithoutDimensions > 10) {
+    score = Math.min(score, 89);
   }
 
-  if (checks.imagesWithoutDimensions > 5) {
-    score -= 6;
-    issues += 1;
+  if (failedLocalAudits >= 2) {
+    score = Math.min(score, 79);
   }
 
-  if (issues > 0) {
-    score = Math.min(score, 94 - issues * 9);
-  }
-
-  if (checks.noAlt && checks.noLabel) {
-    score = Math.min(score, 66);
-  }
-
-  if (!checks.htmlLang && (checks.noAlt || checks.noLabel)) {
-    score = Math.min(score, 68);
-  }
-
-  if (!checks.viewport && checks.noLabel) {
-    score = Math.min(score, 62);
+  if (failedLocalAudits >= 3) {
+    score = Math.min(score, 69);
   }
 
   return clamp(score, 20, 100);
 }
 
 function calculateSeoScore(pageSpeedScores = {}, checks = {}) {
-  let score = Number(pageSpeedScores.seo?.mobile || 65);
-  let issues = 0;
+  let score = Number(pageSpeedScores.seo?.mobile || 0);
+
+  if (!score) {
+    score = 65;
+  }
+
+  let failedSeoBasics = 0;
 
   if (!checks.htmlFetchOk && checks.partialAudit) {
-    score = Math.min(score || 62, 62);
-    issues += 1;
+    score = Math.min(score, 79);
+    failedSeoBasics += 1;
   }
 
   if (checks.noMeta) {
-    score -= 18;
-    issues += 1;
-  } else {
-    score += 4;
+    failedSeoBasics += 1;
+    score = Math.min(score, 89);
   }
 
-  if (checks.hasCanonical) {
-    score += 3;
-  } else {
-    score -= 18;
-    issues += 1;
+  if (!checks.hasCanonical) {
+    failedSeoBasics += 1;
+    score = Math.min(score, 89);
   }
 
-  if (checks.robotsOk) {
-    score += 3;
-  } else {
-    score -= 12;
-    issues += 1;
+  if (!checks.robotsOk) {
+    failedSeoBasics += 1;
+    score = Math.min(score, 89);
   }
 
-  if (checks.htmlLang) {
-    score += 2;
-  } else {
-    score -= 6;
-    issues += 1;
+  if (!checks.htmlLang) {
+    failedSeoBasics += 1;
+    score = Math.min(score, 89);
   }
 
   if (checks.noAlt) {
-    score -= 8;
-    issues += 1;
+    failedSeoBasics += 1;
+    score = Math.min(score, 89);
   }
 
-  if (issues > 0) {
-    score = Math.min(score, 92 - 10 * issues);
+  if (failedSeoBasics >= 2) {
+    score = Math.min(score, 84);
   }
 
-  if (!checks.hasCanonical && !checks.robotsOk) {
-    score = Math.min(score, 74);
+  if (failedSeoBasics >= 3) {
+    score = Math.min(score, 79);
   }
 
-  if (checks.noMeta && !checks.hasCanonical) {
-    score = Math.min(score, 68);
-  }
-
-  if (checks.noMeta && !checks.hasCanonical && !checks.robotsOk) {
-    score = Math.min(score, 58);
-  }
-
-  if (!checks.htmlFetchOk && checks.partialAudit) {
-    score = Math.min(score, 62);
+  if (failedSeoBasics >= 4) {
+    score = Math.min(score, 69);
   }
 
   return clamp(score, 30, 100);
 }
 
 function calculateBestPracticesScore(pageSpeedScores = {}, checks = {}) {
-  let score = Number(pageSpeedScores.bestPractices?.mobile || 75);
+  let score = Number(pageSpeedScores.bestPractices?.mobile || 0);
 
-  if (checks.hasHttps) {
-    score += 6;
-  } else {
-    score -= 28;
-    score = Math.min(score, 58);
+  if (!score) {
+    score = 75;
   }
 
-  if (checks.hasFavicon) {
-    score += 2;
-  } else {
-    score -= 5;
+  if (!checks.hasHttps) {
+    score = Math.min(score, 49);
   }
 
-  if (checks.scriptCount > 30) {
-    score -= 5;
+  if (!checks.hasFavicon) {
+    score = Math.min(score, 89);
+  }
+
+  if (!checks.htmlFetchOk && checks.partialAudit) {
+    score = Math.min(score, 79);
   }
 
   return clamp(score, 30, 100);
@@ -958,7 +943,15 @@ function calculateLegalScore(checks = {}) {
   }
 
   if (issues > 0) {
-    score = Math.min(score, 90 - issues * 5);
+    score = Math.min(score, 89);
+  }
+
+  if (issues >= 2) {
+    score = Math.min(score, 79);
+  }
+
+  if (issues >= 4) {
+    score = Math.min(score, 69);
   }
 
   if (!checks.htmlFetchOk && checks.partialAudit) {
@@ -1128,6 +1121,7 @@ app.get('/audit', async (req, res) => {
 
     if (!response.ok && !pageSpeedResult.ok) {
       const finalUrl = response.url || inputUrl;
+
       const extraNotice = buildNotice(
         'limited-fallback-report',
         'Eingeschränkte Analyse',
@@ -1321,6 +1315,7 @@ app.get('/audit', async (req, res) => {
     );
 
     const finalUrl = req.query.url ? normalizeUrl(req.query.url) : '';
+
     const fallbackResponse = {
       ok: false,
       status: 0,
