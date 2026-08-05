@@ -671,6 +671,7 @@ async function detectWiderruf($, baseUrl) {
 function detectShop($, baseUrl, legal) {
   const url = safeLower(baseUrl);
   const body = safeLower($('body').text());
+  const html = safeLower($.html());
 
   const links = $('a[href]')
     .map((_, el) => `${$(el).text()} ${$(el).attr('href')}`)
@@ -678,15 +679,52 @@ function detectShop($, baseUrl, legal) {
     .join(' ')
     .toLowerCase();
 
-  const html = safeLower($.html());
+  const transactionalSignals = [
+    /warenkorb/,
+    /in den warenkorb/,
+    /zur kasse/,
+    /checkout/,
+    /add to cart/,
+    /buy now/,
+    /jetzt kaufen/,
+    /kaufen/,
+    /bestellen/,
+    /order now/,
+    /cart/,
+    /basket/
+  ];
+
+  const transactionalUrlSignals = [
+    /\/cart(\/|$|\?)/,
+    /\/checkout(\/|$|\?)/,
+    /\/warenkorb(\/|$|\?)/,
+    /\/kasse(\/|$|\?)/,
+    /\/products\//,
+    /\/produkt\//,
+    /\/collections\//
+  ];
+
+  const ecommerceSystemSignals = [
+    /shopify\.com/,
+    /cdn\.shopify\.com/,
+    /woocommerce/,
+    /wp-content\/plugins\/woocommerce/,
+    /magento/,
+    /shopware/,
+    /plentymarkets/
+  ];
+
+  const hasTransactionalText = transactionalSignals.some(pattern => pattern.test(body));
+  const hasTransactionalLinks = transactionalUrlSignals.some(pattern => pattern.test(links));
+  const hasEcommerceSystem = ecommerceSystemSignals.some(pattern => pattern.test(html));
+
+  const hasStrongLegalShopSignal = Boolean(legal?.agb && legal?.widerruf);
 
   return Boolean(
-    legal.agb ||
-    legal.widerruf ||
-    /shop|store|warenkorb|kasse|checkout|cart|product|produkt|fanshop/.test(url) ||
-    /warenkorb|in den warenkorb|zur kasse|checkout|cart|add to cart|buy now|jetzt kaufen|produkt/.test(body) ||
-    /\/cart|\/checkout|\/products|\/collections|\/produkt|\/shop/.test(links) ||
-    /shopify|woocommerce|magento|shopware|plentymarkets|commerce|ecommerce/.test(html)
+    hasTransactionalText ||
+    hasTransactionalLinks ||
+    hasEcommerceSystem ||
+    hasStrongLegalShopSignal
   );
 }
 
